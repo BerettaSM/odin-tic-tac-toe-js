@@ -4,15 +4,35 @@ function Player(name, symbol) {
     this.symbol = symbol;
 }
 
-Player.prototype.play = function(board) {
+Player.prototype.clone = function() {
+    var clone = Object.create(Player.prototype);
+    clone.name = this.name;
+    clone.symbol = this.symbol;
+    return clone;
+}
+
+Player.prototype.play = async function(board) {
     // return board[0][1] or 'A1', for example
+    return window.prompt('Enter play: ', '');
 }
 
 function Game(player1, player2) {
     this._board = Array(9).fill(' ');
     this._players = [player1, player2];
-    this._turn = -1;
+    this._turn = 0;
     this._isOver = false;
+    this._winner = null;
+    this._winningRow = null;
+    this._winConditions = {
+        'horizontal-top':    [0, 1, 2],
+        'horizontal-center': [3, 4, 5],
+        'horizontal-bottom': [6, 7, 8],
+        'vertical-left':     [0, 3, 6],
+        'vertical-center':   [1, 4, 7],
+        'vertical-right':    [2, 5, 8],
+        'diagonal-left':     [0, 4, 8],
+        'diagonal-right':    [2, 4, 6],
+    };
 }
 
 Object.defineProperty(Game.prototype, 'board', {
@@ -31,15 +51,31 @@ Object.defineProperty(Game.prototype, 'isOver', {
     enumerable: false,
 });
 
+Object.defineProperty(Game.prototype, 'winningRow', {
+    get() {
+        return this._winningRow;
+    },
+    configurable: false,
+    enumerable: false,
+});
+
+Object.defineProperty(Game.prototype, 'winner', {
+    get() {
+        return this._winner ? this._winner.clone() : null;
+    },
+    configurable: false,
+    enumerable: false,
+});
+
 Game.prototype._nextPlayer = function() {
-    this._turn++;
     var nextPlayerIdx = this._turn % 2;
+    this._turn++;
     return this._players[nextPlayerIdx];
 }
 
-Game.prototype.nextTurn = function() {
+Game.prototype.nextTurn = async function() {
     // Throws an error if game is already over
-    if(this.isOver) {
+    if(this._isOver) {
         throw new Error('Game is already over.');
     }
     
@@ -47,12 +83,28 @@ Game.prototype.nextTurn = function() {
     var player = this._nextPlayer();
 
     // Keep asking the next player for a play until it receives a valid one.
-    let play;
+    while(true) {
+        var tentativePlay = await player.play(this.board);
 
-    do {
-        play = player.play();
-    } while(!this._validatePlay(play));
+        try {
+            let index = Translator.toArrayPosition(tentativePlay);
+            
+            if(this._board[index] != ' ') {
+                throw new Error('Invalid');
+            }
+    
+            this._board[index] = player.symbol;
 
+            break;
+        }
+        catch {
+            // Send a notification warning that the play is invalid.
+            console.log('Invalid play');
+        }
+
+    };
+
+    this._checkForGameOver();
 }
 
 var Translator = {
@@ -82,33 +134,43 @@ var Translator = {
     },
 }
 
-Game.prototype._validatePlay = function(play) {
-    try {
-        var index = Translator.toArrayPosition(play);
-        
-        if(this._board[index] != ' ') {
-            throw new Error('Invalid');
+Game.prototype._checkForWinner = function() {
+    for(let [row, positions] of Object.entries(this._winConditions)) {
+        let placedSymbols = positions.map(position => this.board[position]);
+        for(let player of this._players) {
+            if(placedSymbols.every(symbol => symbol === player.symbol)) {
+                this._winner = player;
+                this._winningRow = row;
+                this._isOver = true;
+                return;
+            }
         }
-
-        return true;
-    }
-    catch {
-        return false;
     }
 }
 
-Game.prototype.checkForWin = function() {
-    // either returns null, the winner,
-    // or some special character to symbolize ties
+Game.prototype._checkForTie = function() {
+    if(this._board.every(pos => pos != ' ')) {
+        this._isOver = true;
+    }
 }
 
-// Player
-//    -> symbol (X, O)
-//    -> play(boardState) -> boardPosition
-// Game
-//    -> 2 players
-//    -> board
-//    -> player turn
-//    -> ask for play
-//    -> validate play
-//    -> check for win
+Game.prototype._checkForGameOver = function() {
+    // Check for win or tie
+    if(this._isOver) {
+        return;
+    }
+    this._checkForWinner();
+    this._checkForTie();
+}
+
+Game.prototype.toString = function() {
+    var str = '-------------\n';
+    for(let i = 0;i < 3;i++) {
+        console.log('hi')
+        str += '| ';
+        str += this._board.slice(i * 3, i * 3 + 3).join(' | ');
+        str += ' |\n'
+        str += '-------------\n';
+    }
+    return str;
+}
