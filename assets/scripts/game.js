@@ -14,8 +14,14 @@ var TicTacToeGame = (function hideInternals() {
 
     var baseConfig = {
         boardTranslator: new BoardTranslator(),
-        onGameOverCallback: function onGameOver(winner) {
-            console.log('Winner is', winner.name);
+        onGameOverCallback: function onGameOver(winner, winningRow) {
+            if(!winner) {
+                console.log('Tie!');
+            }
+            else {
+                console.log('Winner is', winner.name);
+                console.log('Winning row:', winningRow);
+            }
         },
         onInvalidPlayCallback: function onInvalidPlay(boardPosition, motive) {
             console.log('Could not place symbol at position', boardPosition);
@@ -28,9 +34,9 @@ var TicTacToeGame = (function hideInternals() {
     function Game(player1, player2, config = {}) {
         config = Object.assign({}, baseConfig, config);
         validateBoardTranslator(config.boardTranslator);
-        this._players = [player1, player2];
-        validatePlayers(this._players);
         this._boardTranslator = config.boardTranslator;
+        validatePlayers([player1, player2]);
+        this._players = [player1, player2];
         this._board = Array(9).fill(EMPTY_CELL);
         this._turn = 0;
         this._turnInProgress = false;
@@ -63,6 +69,7 @@ var TicTacToeGame = (function hideInternals() {
 
         // Keep asking the next player for a play until we receive a valid one.
         while (true) {
+            // Wait for player to choose a position.
             let tentativePlay = await player.play(this.board);
 
             try {
@@ -158,10 +165,11 @@ var TicTacToeGame = (function hideInternals() {
             );
             for (let player of this._players) {
                 if (placedSymbols.every((symbol) => symbol === player.symbol)) {
-                    this._winner = player.clone();
+                    var winner = player.clone();
+                    this._winner = winner;
                     this._winningRow = row;
                     this._isOver = true;
-                    this._onGameOver(this._winner);
+                    this._onGameOver(winner, row);
                     return;
                 }
             }
@@ -170,7 +178,7 @@ var TicTacToeGame = (function hideInternals() {
         // If there's no winner, check for a tie.
         if (this._board.every((pos) => pos != EMPTY_CELL)) {
             this._isOver = true;
-            this._onGameOver(null);
+            this._onGameOver();
         }
     };
 
