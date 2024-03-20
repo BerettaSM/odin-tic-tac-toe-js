@@ -4,6 +4,8 @@ var Utils = (function () {
     var publicAPI = {
         clone,
         deepClone,
+        getRandomChoice,
+        getRandomNumber,
     };
 
     return publicAPI;
@@ -31,5 +33,17 @@ var Utils = (function () {
         var clone = _deepClone(obj);
         Object.setPrototypeOf(clone, Object.getPrototypeOf(obj));
         return clone;
+    }
+
+    function getRandomChoice(...options) {
+        if(options.length === 0) {
+            return null;
+        }
+        var randomIndex = getRandomNumber(0, options.length - 1);
+        return options[randomIndex];
+    }
+
+    function getRandomNumber(min, max) {
+        return min + Math.floor(Math.random() * (max - min + 1));
     }
 })();
