@@ -1,16 +1,13 @@
 'use strict';
 
 var TicTacToe = (function hideInternals() {
-    const EMPTY_CELL = ' ';
-
     const ARRAY_POSITION_REGEX = /^[0-8]$/;
     const BOARD_POSITION_REGEX = /^[A-C][1-3]$/i;
-
+    const EMPTY_CELL = ' ';
     const SYMBOLS = ['X', 'O'];
     const CENTER = 4;
     const CORNERS = [0, 2, 6, 8];
-
-    const winConditions = {
+    const TIC_TAC_TOE_ROW = {
         'horizontal-top': [0, 1, 2],
         'horizontal-center': [3, 4, 5],
         'horizontal-bottom': [6, 7, 8],
@@ -21,11 +18,11 @@ var TicTacToe = (function hideInternals() {
         'diagonal-right': [2, 4, 6],
     };
 
-    const BotDifficulty = {
+    const BotDifficulty = Object.freeze({
         EASY: 'EASY',
         MEDIUM: 'MEDIUM',
         HARD: 'HARD',
-    };
+    });
 
     var publicAPI = {
         Game,
@@ -33,8 +30,8 @@ var TicTacToe = (function hideInternals() {
         Bot,
         parseToArrayPosition,
         parseToBoardPosition,
-        winConditions: Utils.deepClone(winConditions),
-        BotDifficulty: Utils.deepClone(BotDifficulty),
+        TIC_TAC_TOE_ROW: Utils.deepClone(TIC_TAC_TOE_ROW),
+        BotDifficulty,
     };
 
     return publicAPI;
@@ -83,7 +80,7 @@ var TicTacToe = (function hideInternals() {
             },
         });
 
-        return instance;
+        return Object.freeze(instance);
 
         // =======================================
 
@@ -143,7 +140,7 @@ var TicTacToe = (function hideInternals() {
             }
 
             // Check for a winner.
-            for (let [row, positions] of Object.entries(winConditions)) {
+            for (let [row, positions] of Object.entries(TIC_TAC_TOE_ROW)) {
                 let placedSymbols = positions.map(
                     (position) => _board[position]
                 );
@@ -194,7 +191,7 @@ var TicTacToe = (function hideInternals() {
             win: {
                 baseChance: 0.5,
                 fn: function getWinningPlay(board) {
-                    for (let row of Object.values(winConditions)) {
+                    for (let row of Object.values(TIC_TAC_TOE_ROW)) {
                         let rowSymbols = getSymbolsOnRow(board, row);
                         let numberOfBotPlacedSymbols = countSymbols(
                             rowSymbols,
@@ -221,7 +218,7 @@ var TicTacToe = (function hideInternals() {
             defense: {
                 baseChance: 0.6,
                 fn: function getDefensivePlay(board) {
-                    for (let row of Object.values(winConditions)) {
+                    for (let row of Object.values(TIC_TAC_TOE_ROW)) {
                         let rowSymbols = getSymbolsOnRow(board, row);
                         let numberOfOtherPlayerPlaceSymbols = countSymbols(
                             rowSymbols,
@@ -260,7 +257,7 @@ var TicTacToe = (function hideInternals() {
                     switch (currentTurn) {
                         case 0:
                             // Place on random corner.
-                            return Utils.getRandomChoice(...CORNERS);
+                            return Utils.getRandomChoice(CORNERS);
                         case 1:
                             let takenCorner = CORNERS.filter(
                                 (corner) => board[corner] !== EMPTY_CELL
@@ -274,7 +271,7 @@ var TicTacToe = (function hideInternals() {
                             // otherwise place at a random corner.
                             return isACornerTaken
                                 ? CENTER
-                                : Utils.getRandomChoice(...CORNERS);
+                                : Utils.getRandomChoice(CORNERS);
                         case 2:
                             let myCorner = CORNERS.filter(
                                 (corner) => board[corner] !== EMPTY_CELL
@@ -291,7 +288,7 @@ var TicTacToe = (function hideInternals() {
                                   board[oppositeCorner] === EMPTY_CELL
                                 ? oppositeCorner
                                 : Utils.getRandomChoice(
-                                      ...CORNERS.filter(
+                                      CORNERS.filter(
                                           (corner) =>
                                               board[corner] !== EMPTY_CELL
                                       )
@@ -303,7 +300,7 @@ var TicTacToe = (function hideInternals() {
                             );
 
                             // Try to complete a third corner(possibly) to setup a trap.
-                            return Utils.getRandomChoice(...emptyCorners);
+                            return Utils.getRandomChoice(emptyCorners);
                         default:
                             return null;
                     }
@@ -312,7 +309,7 @@ var TicTacToe = (function hideInternals() {
             completion: {
                 baseChance: 0.8,
                 fn: function getCompletionPlay(board) {
-                    for (let row of Object.values(winConditions)) {
+                    for (let row of Object.values(TIC_TAC_TOE_ROW)) {
                         let rowSymbols = getSymbolsOnRow(board, row);
                         let numberOfBotPlacedSymbols = countSymbols(
                             rowSymbols,
@@ -331,9 +328,8 @@ var TicTacToe = (function hideInternals() {
                             continue;
                         }
 
-                        let randomEmptyCellIndex = Utils.getRandomChoice(
-                            ...emptyCells
-                        );
+                        let randomEmptyCellIndex =
+                            Utils.getRandomChoice(emptyCells);
 
                         return randomEmptyCellIndex;
                     }
@@ -347,7 +343,7 @@ var TicTacToe = (function hideInternals() {
                         .map((_, index) => index)
                         .filter((index) => board[index] === EMPTY_CELL);
 
-                    return Utils.getRandomChoice(...availablePositions);
+                    return Utils.getRandomChoice(availablePositions);
                 },
             },
         };

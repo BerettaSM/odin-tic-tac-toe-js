@@ -1,11 +1,11 @@
 'use strict';
 
 var Controllers = (function hideInternals() {
-    var GameTypes = {
+    const GameTypes = Object.freeze({
         PLAYER_VS_PLAYER: 'PLAYER_VS_PLAYER',
         PLAYER_VS_BOT: 'PLAYER_VS_BOT',
         BOT_VS_BOT: 'BOT_VS_BOT',
-    };
+    });
 
     var { BotDifficulty } = TicTacToe;
 
@@ -65,7 +65,7 @@ var Controllers = (function hideInternals() {
             },
         });
 
-        return instance;
+        return Object.freeze(instance);
 
         // =====================================
 
@@ -104,7 +104,7 @@ var Controllers = (function hideInternals() {
         GameTypes,
     };
 
-    return publicAPI;
+    return Object.freeze(publicAPI);
 
     // =====================================
 
