@@ -7,7 +7,7 @@ var TicTacToe = (function hideInternals() {
     const SYMBOLS = ['X', 'O'];
     const CENTER = 4;
     const CORNERS = [0, 2, 6, 8];
-    const TIC_TAC_TOE_ROW = {
+    const TIC_TAC_TOE_ROW = Utils.deepFreeze({
         'horizontal-top': [0, 1, 2],
         'horizontal-center': [3, 4, 5],
         'horizontal-bottom': [6, 7, 8],
@@ -16,7 +16,7 @@ var TicTacToe = (function hideInternals() {
         'vertical-right': [2, 5, 8],
         'diagonal-left': [0, 4, 8],
         'diagonal-right': [2, 4, 6],
-    };
+    });
 
     const BotDifficulty = Object.freeze({
         EASY: 'EASY',
@@ -30,11 +30,11 @@ var TicTacToe = (function hideInternals() {
         Bot,
         parseToArrayPosition,
         parseToBoardPosition,
-        TIC_TAC_TOE_ROW: Utils.deepClone(TIC_TAC_TOE_ROW),
+        scoringRows: TIC_TAC_TOE_ROW,
         BotDifficulty,
     };
 
-    return publicAPI;
+    return Object.freeze(publicAPI);
 
     // =======================================
 

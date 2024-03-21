@@ -4,11 +4,12 @@ var Utils = (function () {
     var publicAPI = {
         clone,
         deepClone,
+        deepFreeze,
         getRandomChoice,
         getRandomNumber,
     };
 
-    return publicAPI;
+    return Object.freeze(publicAPI);
 
     // =====================================
 
@@ -33,6 +34,16 @@ var Utils = (function () {
         var clone = _deepClone(obj);
         Object.setPrototypeOf(clone, Object.getPrototypeOf(obj));
         return clone;
+    }
+
+    function deepFreeze(obj) {
+        if (typeof obj !== 'object' || obj === null) {
+            return obj;
+        }
+        for (let [key, value] of Object.entries(obj)) {
+            obj[key] = deepFreeze(value);
+        }
+        return Object.freeze(obj);
     }
 
     function getRandomChoice(...options) {
