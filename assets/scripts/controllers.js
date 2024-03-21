@@ -1,19 +1,13 @@
 'use strict';
 
 var Controllers = (function hideInternals() {
-    const GameTypes = Object.freeze({
-        PLAYER_VS_PLAYER: 'PLAYER_VS_PLAYER',
-        PLAYER_VS_BOT: 'PLAYER_VS_BOT',
-        BOT_VS_BOT: 'BOT_VS_BOT',
-    });
-
-    var { BotDifficulty } = TicTacToe;
+    var { BotDifficulty, GameTypes } = TicTacToe;
 
     var baseConfig = {
+        botDifficulty: BotDifficulty.EASY,
         gameType: GameTypes.PLAYER_VS_PLAYER,
         P1Name: 'Player 1',
         P2Name: 'Player 2',
-        botDifficulty: BotDifficulty.EASY,
         onGameOverCallback: function onGameOver(winner, winningRow) {
             if (!winner) {
                 console.log('Tie!');
@@ -87,7 +81,7 @@ var Controllers = (function hideInternals() {
                         (p) => p.symbol === _game.winner
                     );
 
-                    if(winner) {
+                    if (winner) {
                         _scores[winner.symbol]++;
                     }
 
@@ -119,18 +113,14 @@ var Controllers = (function hideInternals() {
 
     // =====================================
 
-    function createPlayers(config) {
-        var { gameType, P1Name, P2Name, botDifficulty } = config;
+    function createPlayers({ botDifficulty, gameType, P1Name, P2Name }) {
         var { Player, Bot } = TicTacToe;
 
         var players;
 
         switch (gameType) {
             case GameTypes.PLAYER_VS_PLAYER:
-                players = [
-                    new Player(P1Name, 'X'),
-                    new Player(P2Name, 'O'),
-                ];
+                players = [new Player(P1Name, 'X'), new Player(P2Name, 'O')];
                 break;
 
             case GameTypes.PLAYER_VS_BOT:

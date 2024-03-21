@@ -23,6 +23,11 @@ var TicTacToe = (function hideInternals() {
         MEDIUM: 'MEDIUM',
         HARD: 'HARD',
     });
+    const GameTypes = Object.freeze({
+        PLAYER_VS_PLAYER: 'PLAYER_VS_PLAYER',
+        PLAYER_VS_BOT: 'PLAYER_VS_BOT',
+        BOT_VS_BOT: 'BOT_VS_BOT',
+    });
 
     var publicAPI = {
         Game,
@@ -32,6 +37,7 @@ var TicTacToe = (function hideInternals() {
         parseToBoardPosition,
         scoringRows: TIC_TAC_TOE_ROW,
         BotDifficulty,
+        GameTypes,
     };
 
     return Object.freeze(publicAPI);
