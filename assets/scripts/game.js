@@ -176,7 +176,6 @@ var TicTacToe = (function hideInternals() {
         return {
             name,
             symbol,
-            score: 0,
         };
     }
 

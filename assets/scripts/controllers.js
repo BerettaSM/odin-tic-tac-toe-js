@@ -34,6 +34,7 @@ var Controllers = (function hideInternals() {
 
         var _game = new TicTacToe.Game();
         var _players = createPlayers(config);
+        var _scores = { X: 0, O: 0 };
 
         var instance = {
             nextTurn,
@@ -63,6 +64,11 @@ var Controllers = (function hideInternals() {
                     return _players.map(Utils.clone);
                 },
             },
+            scores: {
+                get() {
+                    return Object.assign({}, _scores);
+                },
+            },
         });
 
         return Object.freeze(instance);
@@ -78,7 +84,9 @@ var Controllers = (function hideInternals() {
                         (p) => p.symbol === _game.winner
                     );
 
-                    winner && winner.score++;
+                    if(winner) {
+                        _scores[winner.symbol]++;
+                    }
 
                     config.onGameOverCallback(winner, _game.winningRow);
                 }
