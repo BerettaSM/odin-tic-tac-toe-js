@@ -184,7 +184,7 @@ var TicTacToe = (function hideInternals() {
     }
 
     function Bot(name, symbol, difficulty = BotDifficulty.EASY) {
-        var mySymbol = symbol;
+        var botSymbol = symbol;
 
         var plays = {
             win: {
@@ -194,7 +194,7 @@ var TicTacToe = (function hideInternals() {
                         let rowSymbols = getSymbolsOnRow(board, row);
                         let numberOfBotPlacedSymbols = countSymbols(
                             rowSymbols,
-                            (rowSymbol) => rowSymbol === mySymbol
+                            (rowSymbol) => rowSymbol === botSymbol
                         );
 
                         if (numberOfBotPlacedSymbols !== 2) {
@@ -222,7 +222,7 @@ var TicTacToe = (function hideInternals() {
                         let numberOfOtherPlayerPlaceSymbols = countSymbols(
                             rowSymbols,
                             (rowSymbol) =>
-                                rowSymbol !== mySymbol &&
+                                rowSymbol !== botSymbol &&
                                 rowSymbol !== EMPTY_CELL
                         );
 
@@ -261,9 +261,7 @@ var TicTacToe = (function hideInternals() {
                             let takenCorner = CORNERS.filter(
                                 (corner) => board[corner] !== EMPTY_CELL
                             )[0];
-                            let isACornerTaken =
-                                takenCorner != undefined &&
-                                board[takenCorner] !== mySymbol;
+                            let isACornerTaken = takenCorner != undefined;
 
                             // If opponent already placed at corner,
                             // place at center to counter,
@@ -272,10 +270,15 @@ var TicTacToe = (function hideInternals() {
                                 ? CENTER
                                 : Utils.getRandomChoice(CORNERS);
                         case 2:
-                            let myCorner = CORNERS.filter(
-                                (corner) => board[corner] !== EMPTY_CELL
-                            ).find((corner) => board[corner] === mySymbol);
-                            let oppositeCorner = getOppositeCorner(myCorner);
+                            let botCorners = CORNERS.filter(
+                                (corner) => board[corner] === botSymbol
+                            );
+                            let oppositeCorner = getOppositeCorner(
+                                botCorners[0]
+                            );
+                            let isOppositeCornerEmpty =
+                                oppositeCorner != null &&
+                                board[oppositeCorner] === EMPTY_CELL;
                             let isCenterEmpty = board[CENTER] === EMPTY_CELL;
 
                             // Favor taking the center,
@@ -283,13 +286,12 @@ var TicTacToe = (function hideInternals() {
                             // or simply another corner.
                             return isCenterEmpty
                                 ? CENTER
-                                : oppositeCorner != null &&
-                                  board[oppositeCorner] === EMPTY_CELL
+                                : isOppositeCornerEmpty
                                 ? oppositeCorner
                                 : Utils.getRandomChoice(
                                       CORNERS.filter(
                                           (corner) =>
-                                              board[corner] !== EMPTY_CELL
+                                              board[corner] === EMPTY_CELL
                                       )
                                   );
 
@@ -300,6 +302,7 @@ var TicTacToe = (function hideInternals() {
 
                             // Try to complete a third corner(possibly) to setup a trap.
                             return Utils.getRandomChoice(emptyCorners);
+                            
                         default:
                             return null;
                     }
@@ -312,7 +315,7 @@ var TicTacToe = (function hideInternals() {
                         let rowSymbols = getSymbolsOnRow(board, row);
                         let numberOfBotPlacedSymbols = countSymbols(
                             rowSymbols,
-                            (rowSymbol) => rowSymbol === mySymbol
+                            (rowSymbol) => rowSymbol === botSymbol
                         );
 
                         if (numberOfBotPlacedSymbols !== 1) {
@@ -348,7 +351,7 @@ var TicTacToe = (function hideInternals() {
         };
 
         return Object.assign(BasePlayer(name, symbol), {
-            play: async function (board) {
+            play: function (board) {
                 var [positionIndex] = Object.values(plays)
                     .map(({ baseChance, fn }) => {
                         if (baseChance == null) {
