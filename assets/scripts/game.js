@@ -3,20 +3,23 @@
 var TicTacToe = (function hideInternals() {
     const EMPTY_CELL = ' ';
 
-    var arrayPositionRegex = /^[0-8]$/;
-    var boardPositionRegex = /^[A-C][1-3]$/i;
+    const ARRAY_POSITION_REGEX = /^[0-8]$/;
+    const BOARD_POSITION_REGEX = /^[A-C][1-3]$/i;
 
-    var symbols = ['X', 'O'];
+    const SYMBOLS = ['X', 'O'];
+    const CENTER = 5;
+    const CORNERS = [0, 2, 6, 8];
+    const EDGES = [1, 3, 5, 7];
 
-    var winConditions = {
-        'horizontal-top':    [0, 1, 2],
+    const winConditions = {
+        'horizontal-top': [0, 1, 2],
         'horizontal-center': [3, 4, 5],
         'horizontal-bottom': [6, 7, 8],
-        'vertical-left':     [0, 3, 6],
-        'vertical-center':   [1, 4, 7],
-        'vertical-right':    [2, 5, 8],
-        'diagonal-left':     [0, 4, 8],
-        'diagonal-right':    [2, 4, 6],
+        'vertical-left': [0, 3, 6],
+        'vertical-center': [1, 4, 7],
+        'vertical-right': [2, 5, 8],
+        'diagonal-left': [0, 4, 8],
+        'diagonal-right': [2, 4, 6],
     };
 
     var publicAPI = {
@@ -25,6 +28,7 @@ var TicTacToe = (function hideInternals() {
         Bot,
         parseToArrayPosition,
         parseToBoardPosition,
+        winConditions: Utils.deepClone(winConditions),
     };
 
     return publicAPI;
@@ -147,7 +151,7 @@ var TicTacToe = (function hideInternals() {
                 let placedSymbols = positions.map(
                     (position) => _board[position]
                 );
-                for (let symbol of symbols) {
+                for (let symbol of SYMBOLS) {
                     if (
                         placedSymbols.every(
                             (placedSymbol) => placedSymbol === symbol
@@ -169,7 +173,7 @@ var TicTacToe = (function hideInternals() {
 
         function getNextSymbol() {
             var nextPlayerIdx = _turn % 2;
-            return symbols[nextPlayerIdx];
+            return SYMBOLS[nextPlayerIdx];
         }
     }
 
@@ -179,23 +183,134 @@ var TicTacToe = (function hideInternals() {
         return {
             name,
             symbol,
-            score: 0
-        }
+            score: 0,
+        };
     }
 
     function Player(name, symbol) {
-        return Object.assign(BasePlayer(name, symbol))
+        return Object.assign(BasePlayer(name, symbol));
     }
 
     function Bot(name, symbol) {
+
+        var mySymbol = symbol;
+
+        var plays = [
+            function getWinningPlay(board) {
+                for (let row of Object.values(winConditions)) {
+                    let rowSymbols = getSymbolsOnRow(board, row);
+                    let numberOfBotPlacedSymbols = countSymbols(
+                        rowSymbols,
+                        (rowSymbol) => rowSymbol === mySymbol
+                    );
+
+                    if (numberOfBotPlacedSymbols !== 2) {
+                        continue;
+                    }
+
+                    let emptyCellIndex = rowSymbols.findIndex(
+                        (rowSymbol) => rowSymbol == EMPTY_CELL
+                    );
+                    if (emptyCellIndex === -1) {
+                        continue;
+                    }
+
+                    return row[emptyCellIndex];
+                }
+
+                return null;
+            },
+            function getDefensivePlay(board) {
+                for (let row of Object.values(winConditions)) {
+                    let rowSymbols = getSymbolsOnRow(board, row);
+                    let numberOfOtherPlayerPlaceSymbols = countSymbols(
+                        rowSymbols,
+                        (rowSymbol) => rowSymbol !== mySymbol && rowSymbol !== EMPTY_CELL
+                    );
+                    
+                    if(numberOfOtherPlayerPlaceSymbols !== 2) {
+                        continue;
+                    }
+
+                    let emptyCellIndex = rowSymbols.findIndex(
+                        (rowSymbol) => rowSymbol == EMPTY_CELL
+                    );
+                    if (emptyCellIndex === -1) {
+                        continue;
+                    }
+
+                    return row[emptyCellIndex];
+                }
+
+                return null;
+            },
+            function getCornerPlay(board) {
+                var currentTurn = getGameTurn(board);
+
+                if(currentTurn > 4 || currentTurn === board.length) {
+                    // There's no empty cell for some reason.
+                    return null;
+                }
+
+                switch(currentTurn) {
+                    case 0:
+                    case 1:
+                        let opponentCorner = CORNERS.find(corner => board[corner] !== mySymbol && board[corner] !== EMPTY_CELL);
+                        
+                        // If opponent already placed at corner,
+                        // place at center to counter,
+                        // otherwise place at a random corner.
+                        return opponentCorner != null
+                            ? CENTER
+                            : Utils.getRandomChoice(...CORNERS);
+                    case 2:
+                    case 3:
+                        let myCorners = Utils.getRandomChoice(...CORNERS)
+                            .filter(corner => board[corner] === mySymbol);
+
+                        break;
+
+                    default:
+                        return null;
+                }
+
+            },
+        ];
+
         return Object.assign(BasePlayer(name, symbol), {
-            play: async function(board) {
-                throwGameError('Not implemented');
-            }
+            play: async function (board) {
+                // Winning play first -> try to win.
+                var play1 = plays[0](board);
+                console.log('Winning play:', play1 !== null ? parseToBoardPosition(play1) : null, play1);
+
+                // Defensive play -> check if loss is iminent and act accordingly.
+                var play2 = plays[1](board);
+                console.log('Defensive play:', play2 !== null ? parseToBoardPosition(play2) : null, play2);
+
+                // Try to play the CORNERS ?
+                var play3 = plays[2](board);
+                console.log('Corner play:', play3 !== null ? parseToBoardPosition(play3) : null, play3);
+
+                // Completion play -> Try to place a symbol to set up wins.
+                // Random play -> just random
+                // Throw an error, because no play is possible and this function should not have been called.
+            },
         });
     }
 
     // ========== BOARD UTILS ==============
+
+    function getGameTurn(board) {
+        return board.filter(cell => cell !== EMPTY_CELL).length;
+    }
+
+    function getSymbolsOnRow(board, row) {
+        return row.map((pos) => board[pos]);
+    }
+
+    function countSymbols(row, predicate) {
+        return row.filter(predicate).length;
+    }
 
     function throwGameError(message = 'Something went wrong') {
         var error = new Error(message);
@@ -204,7 +319,7 @@ var TicTacToe = (function hideInternals() {
     }
 
     function parseToArrayPosition(play) {
-        if (!boardPositionRegex.test(play)) {
+        if (!BOARD_POSITION_REGEX.test(play)) {
             throwGameError(`Invalid position "${play}" received`);
         }
         var row = play[0].toUpperCase().charCodeAt(0) - 65;
@@ -213,12 +328,11 @@ var TicTacToe = (function hideInternals() {
     }
 
     function parseToBoardPosition(play) {
-        if (!arrayPositionRegex.test(play)) {
+        if (!ARRAY_POSITION_REGEX.test(play)) {
             throwGameError(`Invalid board index "${play}" received`);
         }
         var row = Math.floor(play / 3) + 65;
         var col = (Number(play) % 3) + 1;
         return `${String.fromCharCode(row)}${col}`;
     }
-
 })();
