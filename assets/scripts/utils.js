@@ -36,6 +36,9 @@ var Utils = (function () {
     }
 
     function getRandomChoice(...options) {
+        if(Array.isArray(options[0])) {
+            options = options[0];
+        }
         if(options.length === 0) {
             return null;
         }
