@@ -178,8 +178,8 @@ var TicTacToe = (function hideInternals() {
         }
 
         function getNextSymbol() {
-            var nextPlayerIdx = _turn % 2;
-            return SYMBOLS[nextPlayerIdx];
+            var nextSymbolIndex = _turn % 2;
+            return SYMBOLS[nextSymbolIndex];
         }
     }
 
