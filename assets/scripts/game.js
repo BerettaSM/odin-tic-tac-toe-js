@@ -187,185 +187,37 @@ var TicTacToe = (function hideInternals() {
     function Bot(name, symbol, difficulty = BotDifficulty.EASY) {
         var botSymbol = symbol;
 
-        var plays = {
-            win: {
-                baseChance: 0.5,
-                fn: function getWinningPlay(board) {
-                    for (let row of Object.values(TIC_TAC_TOE_ROW)) {
-                        let rowSymbols = getSymbolsOnRow(board, row);
-                        let numberOfBotPlacedSymbols = countSymbols(
-                            rowSymbols,
-                            (rowSymbol) => rowSymbol === botSymbol
-                        );
-
-                        if (numberOfBotPlacedSymbols !== 2) {
-                            continue;
-                        }
-
-                        let emptyCellIndex = rowSymbols.findIndex(
-                            (rowSymbol) => rowSymbol == EMPTY_CELL
-                        );
-                        if (emptyCellIndex === -1) {
-                            continue;
-                        }
-
-                        return row[emptyCellIndex];
-                    }
-
-                    return null;
-                },
-            },
-            defense: {
-                baseChance: 0.6,
-                fn: function getDefensivePlay(board) {
-                    for (let row of Object.values(TIC_TAC_TOE_ROW)) {
-                        let rowSymbols = getSymbolsOnRow(board, row);
-                        let numberOfOtherPlayerPlaceSymbols = countSymbols(
-                            rowSymbols,
-                            (rowSymbol) =>
-                                rowSymbol !== botSymbol &&
-                                rowSymbol !== EMPTY_CELL
-                        );
-
-                        if (numberOfOtherPlayerPlaceSymbols !== 2) {
-                            continue;
-                        }
-
-                        let emptyCellIndex = rowSymbols.findIndex(
-                            (rowSymbol) => rowSymbol == EMPTY_CELL
-                        );
-                        if (emptyCellIndex === -1) {
-                            continue;
-                        }
-
-                        return row[emptyCellIndex];
-                    }
-
-                    return null;
-                },
-            },
-            corner: {
-                baseChance: 0.7,
-                fn: function getCornerPlay(board) {
-                    var currentTurn = getGameTurn(board);
-
-                    if (currentTurn === board.length) {
-                        // There's no empty cell for some reason.
-                        return null;
-                    }
-
-                    switch (currentTurn) {
-                        case 0:
-                            // Place on random corner.
-                            return Utils.getRandomChoice(CORNERS);
-                        case 1:
-                            let takenCorner = CORNERS.filter(
-                                (corner) => board[corner] !== EMPTY_CELL
-                            )[0];
-                            let isACornerTaken = takenCorner != undefined;
-
-                            // If opponent already placed at corner,
-                            // place at center to counter,
-                            // otherwise place at a random corner.
-                            return isACornerTaken
-                                ? CENTER
-                                : Utils.getRandomChoice(CORNERS);
-                        case 2:
-                            let botCorners = CORNERS.filter(
-                                (corner) => board[corner] === botSymbol
-                            );
-                            let oppositeCorner = getOppositeCorner(
-                                botCorners[0]
-                            );
-                            let isOppositeCornerEmpty =
-                                oppositeCorner != null &&
-                                board[oppositeCorner] === EMPTY_CELL;
-                            let isCenterEmpty = board[CENTER] === EMPTY_CELL;
-
-                            // Favor taking the center,
-                            // then taking the opposite corner,
-                            // or simply another corner.
-                            return isCenterEmpty
-                                ? CENTER
-                                : isOppositeCornerEmpty
-                                ? oppositeCorner
-                                : Utils.getRandomChoice(
-                                      CORNERS.filter(
-                                          (corner) =>
-                                              board[corner] === EMPTY_CELL
-                                      )
-                                  );
-
-                        case 4:
-                            let emptyCorners = CORNERS.filter(
-                                (corner) => board[corner] === EMPTY_CELL
-                            );
-
-                            // Try to complete a third corner(possibly) to setup a trap.
-                            return Utils.getRandomChoice(emptyCorners);
-                            
-                        default:
-                            return null;
-                    }
-                },
-            },
-            completion: {
-                baseChance: 0.8,
-                fn: function getCompletionPlay(board) {
-                    for (let row of Object.values(TIC_TAC_TOE_ROW)) {
-                        let rowSymbols = getSymbolsOnRow(board, row);
-                        let numberOfBotPlacedSymbols = countSymbols(
-                            rowSymbols,
-                            (rowSymbol) => rowSymbol === botSymbol
-                        );
-
-                        if (numberOfBotPlacedSymbols !== 1) {
-                            continue;
-                        }
-
-                        let emptyCells = row.filter(
-                            (rowIndex) => board[rowIndex] == EMPTY_CELL
-                        );
-
-                        if (emptyCells.length !== 2) {
-                            continue;
-                        }
-
-                        let randomEmptyCellIndex =
-                            Utils.getRandomChoice(emptyCells);
-
-                        return randomEmptyCellIndex;
-                    }
-
-                    return null;
-                },
-            },
-            random: {
-                fn: function getRandomPlay(board) {
-                    var availablePositions = board
-                        .map((_, index) => index)
-                        .filter((index) => board[index] === EMPTY_CELL);
-
-                    return Utils.getRandomChoice(availablePositions);
-                },
-            },
-        };
+        var botPlays = [
+            // [ function, chance ]
+            [getWinningPlay, 0.5],
+            [getDefensivePlay, 0.6],
+            [getCornerPlay, 0.5],
+            [getCompletionPlay, 0.7],
+            [getRandomPlay],
+        ];
 
         return Object.assign(BasePlayer(name, symbol), {
             play: function (board) {
-                var [positionIndex] = Object.values(plays)
-                    .map(({ baseChance, fn }) => {
+                if (!Array.isArray(board)) {
+                    throw new Error(
+                        'The bot requires the board to decide on a play.'
+                    );
+                }
+
+                var [positionIndex] = Object.values(botPlays)
+                    .map(([playFn, baseChance]) => {
+                        // No base chance means the function get added to the pool.
                         if (baseChance == null) {
-                            return fn;
+                            return playFn;
                         }
                         var chance = getPlayChanceByDifficulty(
                             difficulty,
                             baseChance
                         );
-                        return Math.random() < chance ? fn : null;
+                        return Math.random() < chance ? playFn : null;
                     })
-                    .filter((fn) => !!fn)
-                    .map((fn) => fn(board))
+                    .filter((playFn) => !!playFn)
+                    .map((playFn) => playFn(board, botSymbol))
                     .filter((index) => index != null);
 
                 if (positionIndex == null) {
@@ -378,6 +230,153 @@ var TicTacToe = (function hideInternals() {
                 return parseToBoardPosition(positionIndex);
             },
         });
+    }
+
+    // =========== BOT UTILS ===============
+
+    function getWinningPlay(board, botSymbol) {
+        for (let row of Object.values(TIC_TAC_TOE_ROW)) {
+            let rowSymbols = getSymbolsOnRow(board, row);
+            let numberOfBotPlacedSymbols = countSymbols(
+                rowSymbols,
+                (rowSymbol) => rowSymbol === botSymbol
+            );
+
+            if (numberOfBotPlacedSymbols !== 2) {
+                continue;
+            }
+
+            let emptyCellIndex = rowSymbols.findIndex(
+                (rowSymbol) => rowSymbol == EMPTY_CELL
+            );
+            if (emptyCellIndex === -1) {
+                continue;
+            }
+
+            return row[emptyCellIndex];
+        }
+
+        return null;
+    }
+
+    function getDefensivePlay(board, botSymbol) {
+        for (let row of Object.values(TIC_TAC_TOE_ROW)) {
+            let rowSymbols = getSymbolsOnRow(board, row);
+            let numberOfOtherPlayerPlaceSymbols = countSymbols(
+                rowSymbols,
+                (rowSymbol) =>
+                    rowSymbol !== botSymbol && rowSymbol !== EMPTY_CELL
+            );
+
+            if (numberOfOtherPlayerPlaceSymbols !== 2) {
+                continue;
+            }
+
+            let emptyCellIndex = rowSymbols.findIndex(
+                (rowSymbol) => rowSymbol == EMPTY_CELL
+            );
+            if (emptyCellIndex === -1) {
+                continue;
+            }
+
+            return row[emptyCellIndex];
+        }
+
+        return null;
+    }
+
+    function getCornerPlay(board, botSymbol) {
+        var currentTurn = getGameTurn(board);
+
+        if (currentTurn === board.length) {
+            // There's no empty cell for some reason.
+            return null;
+        }
+
+        switch (currentTurn) {
+            case 0:
+                // Place on random corner.
+                return Utils.getRandomChoice(CORNERS);
+            case 1:
+                let takenCorner = CORNERS.filter(
+                    (corner) => board[corner] !== EMPTY_CELL
+                )[0];
+                let isACornerTaken = takenCorner != undefined;
+
+                // If opponent already placed at corner,
+                // place at center to counter,
+                // otherwise place at a random corner.
+                return isACornerTaken ? CENTER : Utils.getRandomChoice(CORNERS);
+            case 2:
+                let botCorners = CORNERS.filter(
+                    (corner) => board[corner] === botSymbol
+                );
+                let oppositeCorner = getOppositeCorner(botCorners[0]);
+                let isOppositeCornerEmpty =
+                    oppositeCorner != null &&
+                    board[oppositeCorner] === EMPTY_CELL;
+                let isCenterEmpty = board[CENTER] === EMPTY_CELL;
+
+                // Favor taking the center,
+                // then taking the opposite corner,
+                // or simply another corner.
+                return isCenterEmpty
+                    ? CENTER
+                    : isOppositeCornerEmpty
+                    ? oppositeCorner
+                    : Utils.getRandomChoice(
+                          CORNERS.filter(
+                              (corner) => board[corner] === EMPTY_CELL
+                          )
+                      );
+
+            case 4:
+                let emptyCorners = CORNERS.filter(
+                    (corner) => board[corner] === EMPTY_CELL
+                );
+
+                // Try to complete a third corner(possibly) to setup a trap.
+                return Utils.getRandomChoice(emptyCorners);
+
+            default:
+                return null;
+        }
+    }
+
+    function getCompletionPlay(board, botSymbol) {
+        for (let row of Object.values(TIC_TAC_TOE_ROW)) {
+            let rowSymbols = getSymbolsOnRow(board, row);
+            let numberOfBotPlacedSymbols = countSymbols(
+                rowSymbols,
+                (rowSymbol) => rowSymbol === botSymbol
+            );
+
+            if (numberOfBotPlacedSymbols !== 1) {
+                continue;
+            }
+
+            let emptyCells = row.filter(
+                (rowIndex) => board[rowIndex] == EMPTY_CELL
+            );
+
+            if (emptyCells.length !== 2) {
+                continue;
+            }
+
+            let randomEmptyCellIndex = Utils.getRandomChoice(emptyCells);
+
+            return randomEmptyCellIndex;
+        }
+
+        return null;
+    }
+
+    function getRandomPlay(board) {
+        var availablePositions = board
+            .map((_, index) => index)
+            .filter((index) => board[index] === EMPTY_CELL);
+
+        return Utils.getRandomChoice(availablePositions);
     }
 
     // ========== BOARD UTILS ==============
