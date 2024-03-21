@@ -192,7 +192,6 @@ var TicTacToe = (function hideInternals() {
     }
 
     function Bot(name, symbol) {
-
         var mySymbol = symbol;
 
         var plays = [
@@ -225,10 +224,11 @@ var TicTacToe = (function hideInternals() {
                     let rowSymbols = getSymbolsOnRow(board, row);
                     let numberOfOtherPlayerPlaceSymbols = countSymbols(
                         rowSymbols,
-                        (rowSymbol) => rowSymbol !== mySymbol && rowSymbol !== EMPTY_CELL
+                        (rowSymbol) =>
+                            rowSymbol !== mySymbol && rowSymbol !== EMPTY_CELL
                     );
-                    
-                    if(numberOfOtherPlayerPlaceSymbols !== 2) {
+
+                    if (numberOfOtherPlayerPlaceSymbols !== 2) {
                         continue;
                     }
 
@@ -244,36 +244,42 @@ var TicTacToe = (function hideInternals() {
 
                 return null;
             },
-            function getCornerPlay(board) {
-                var currentTurn = getGameTurn(board);
+            function getCornerPlay(board) {},
+            function getCompletionPlay(board) {
+                for (let row of Object.values(winConditions)) {
+                    let rowSymbols = getSymbolsOnRow(board, row);
+                    let numberOfBotPlacedSymbols = countSymbols(
+                        rowSymbols,
+                        (rowSymbol) => rowSymbol === mySymbol
+                    );
 
-                if(currentTurn > 4 || currentTurn === board.length) {
-                    // There's no empty cell for some reason.
-                    return null;
+                    if (numberOfBotPlacedSymbols !== 1) {
+                        continue;
+                    }
+
+                    let emptyCells = row.filter(
+                        (rowIndex) => board[rowIndex] == EMPTY_CELL
+                    );
+
+                    if (emptyCells.length !== 2) {
+                        continue;
+                    }
+
+                    let randomEmptyCellIndex = Utils.getRandomChoice(
+                        ...emptyCells
+                    );
+
+                    return randomEmptyCellIndex;
                 }
 
-                switch(currentTurn) {
-                    case 0:
-                    case 1:
-                        let opponentCorner = CORNERS.find(corner => board[corner] !== mySymbol && board[corner] !== EMPTY_CELL);
-                        
-                        // If opponent already placed at corner,
-                        // place at center to counter,
-                        // otherwise place at a random corner.
-                        return opponentCorner != null
-                            ? CENTER
-                            : Utils.getRandomChoice(...CORNERS);
-                    case 2:
-                    case 3:
-                        let myCorners = Utils.getRandomChoice(...CORNERS)
-                            .filter(corner => board[corner] === mySymbol);
+                return null;
+            },
+            function getRandomPlay(board) {
+                var availablePositions = board
+                    .map((_, index) => index)
+                    .filter((index) => board[index] === EMPTY_CELL);
 
-                        break;
-
-                    default:
-                        return null;
-                }
-
+                return Utils.getRandomChoice(...availablePositions);
             },
         ];
 
@@ -281,19 +287,49 @@ var TicTacToe = (function hideInternals() {
             play: async function (board) {
                 // Winning play first -> try to win.
                 var play1 = plays[0](board);
-                console.log('Winning play:', play1 !== null ? parseToBoardPosition(play1) : null, play1);
+                console.log(
+                    'Winning play:',
+                    play1 !== null ? parseToBoardPosition(play1) : null,
+                    play1
+                );
 
                 // Defensive play -> check if loss is iminent and act accordingly.
                 var play2 = plays[1](board);
-                console.log('Defensive play:', play2 !== null ? parseToBoardPosition(play2) : null, play2);
+                console.log(
+                    'Defensive play:',
+                    play2 !== null ? parseToBoardPosition(play2) : null,
+                    play2
+                );
 
                 // Try to play the CORNERS ?
-                var play3 = plays[2](board);
-                console.log('Corner play:', play3 !== null ? parseToBoardPosition(play3) : null, play3);
+
+                // var play3 = plays[2](board);
+                // console.log(
+                //     'Corner play:',
+                //     play3 !== null ? parseToBoardPosition(play3) : null,
+                //     play3
+                // );
 
                 // Completion play -> Try to place a symbol to set up wins.
+                var play4 = plays[3](board);
+                console.log(
+                    'Completion play:',
+                    play4 !== null ? parseToBoardPosition(play4) : null,
+                    play4
+                );
+
                 // Random play -> just random
-                // Throw an error, because no play is possible and this function should not have been called.
+                var play5 = plays[4](board);
+                console.log(
+                    'Random play:',
+                    play5 !== null ? parseToBoardPosition(play5) : null,
+                    play5
+                );
+
+                // Shouldn't get here. ¯\_(ツ)_/¯
+                // throw new Error(
+                //     'No positions available! Something wrong is not quite right... 😅'
+                // );
             },
         });
     }
@@ -301,7 +337,18 @@ var TicTacToe = (function hideInternals() {
     // ========== BOARD UTILS ==============
 
     function getGameTurn(board) {
-        return board.filter(cell => cell !== EMPTY_CELL).length;
+        return board.filter((cell) => cell !== EMPTY_CELL).length;
+    }
+
+    function getOppositeCorner(corner) {
+        if (corner == null) {
+            return null;
+        }
+        // sanity check
+        if (corner < 0 || corner > 8) {
+            throwGameError('No such corner exists.');
+        }
+        return Math.abs(corner - 8);
     }
 
     function getSymbolsOnRow(board, row) {
