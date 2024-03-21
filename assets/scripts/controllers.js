@@ -10,10 +10,10 @@ var Controllers = (function hideInternals() {
     var { BotDifficulty } = TicTacToe;
 
     var baseConfig = {
-        type: GameTypes.PLAYER_VS_PLAYER,
-        player1Name: 'Player 1',
-        player2Name: 'Player 2',
-        difficulty: BotDifficulty.EASY,
+        gameType: GameTypes.PLAYER_VS_PLAYER,
+        P1Name: 'Player 1',
+        P2Name: 'Player 2',
+        botDifficulty: BotDifficulty.EASY,
         onGameOverCallback: function onGameOver(winner, winningRow) {
             if (!winner) {
                 console.log('Tie!');
@@ -44,6 +44,9 @@ var Controllers = (function hideInternals() {
         Object.defineProperties(instance, {
             board: {
                 get() {
+                    // TODO: Make a mapping function
+                    //       to ease access to board cells
+                    //       from outside.
                     return _game.board;
                 },
             },
@@ -117,35 +120,35 @@ var Controllers = (function hideInternals() {
     // =====================================
 
     function createPlayers(config) {
-        var { type, player1Name, player2Name, difficulty } = config;
+        var { gameType, P1Name, P2Name, botDifficulty } = config;
         var { Player, Bot } = TicTacToe;
 
         var players;
 
-        switch (type) {
+        switch (gameType) {
             case GameTypes.PLAYER_VS_PLAYER:
                 players = [
-                    new Player(player1Name, 'X'),
-                    new Player(player2Name, 'O'),
+                    new Player(P1Name, 'X'),
+                    new Player(P2Name, 'O'),
                 ];
                 break;
 
             case GameTypes.PLAYER_VS_BOT:
                 players = [
-                    new Player(player1Name, 'X'),
-                    new Bot('Bot McBotFace', 'O', difficulty),
+                    new Player(P1Name, 'X'),
+                    new Bot('Bot McBotFace', 'O', botDifficulty),
                 ];
                 break;
 
             case GameTypes.BOT_VS_BOT:
                 players = [
-                    new Bot('Bot McBotFace', 'X', difficulty),
-                    new Bot('Another Bot', 'O', difficulty),
+                    new Bot('Bot McBotFace', 'X', botDifficulty),
+                    new Bot('Another Bot', 'O', botDifficulty),
                 ];
                 break;
 
             default:
-                throw new Error(`Unknown game type: "${type}."`);
+                throw new Error(`Unknown game gameType: "${gameType}."`);
         }
 
         return players;

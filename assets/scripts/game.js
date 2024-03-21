@@ -118,6 +118,7 @@ var TicTacToe = (function hideInternals() {
             _winningRow = null;
         }
 
+        // TODO: Move this to string to a presentation controller.
         function toString() {
             var str = '  -------------\n';
             for (let i = 0; i < 3; i++) {
