@@ -60,36 +60,26 @@ var TicTacToe = (function hideInternals() {
                 get() {
                     return Array.from(_board);
                 },
-                configurable: false,
-                enumerable: false,
             },
             currentSymbol: {
                 get() {
                     return getNextSymbol();
                 },
-                configurable: false,
-                enumerable: false,
             },
             isOver: {
                 get() {
                     return _isOver;
                 },
-                configurable: false,
-                enumerable: false,
             },
             winner: {
                 get() {
                     return _winner;
                 },
-                configurable: false,
-                enumerable: false,
             },
             winningRow: {
                 get() {
                     return _winningRow;
                 },
-                configurable: false,
-                enumerable: false,
             },
         });
 

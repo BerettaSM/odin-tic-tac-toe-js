@@ -45,8 +45,6 @@ var Controllers = (function hideInternals() {
                 get() {
                     return _game.board;
                 },
-                configurable: false,
-                enumerable: false,
             },
             currentPlayer: {
                 get() {
@@ -54,22 +52,16 @@ var Controllers = (function hideInternals() {
                         _players.find((p) => p.symbol === _game.currentSymbol)
                     );
                 },
-                configurable: false,
-                enumerable: false,
             },
             isGameOver: {
                 get() {
                     return _game.isOver;
                 },
-                configurable: false,
-                enumerable: false,
             },
             players: {
                 get() {
                     return _players.map(Utils.clone);
                 },
-                configurable: false,
-                enumerable: false,
             },
         });
 
