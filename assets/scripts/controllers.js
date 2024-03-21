@@ -6,11 +6,14 @@ var Controllers = (function hideInternals() {
         PLAYER_VS_BOT: 'PLAYER_VS_BOT',
         BOT_VS_BOT: 'BOT_VS_BOT',
     };
-    
+
+    var { BotDifficulty } = TicTacToe;
+
     var baseConfig = {
         type: GameTypes.PLAYER_VS_PLAYER,
         player1Name: 'Player 1',
         player2Name: 'Player 2',
+        difficulty: BotDifficulty.EASY,
         onGameOverCallback: function onGameOver(winner, winningRow) {
             if (!winner) {
                 console.log('Tie!');
@@ -24,7 +27,7 @@ var Controllers = (function hideInternals() {
             console.log(`Motive: ${motive}`);
         },
     };
-    
+
     // GameController: Responsible for overall game flow.
     function GameController(config = {}) {
         config = Object.assign({}, baseConfig, config);
@@ -101,9 +104,7 @@ var Controllers = (function hideInternals() {
     }
 
     // Controls a basic game in browser console.
-    function BasicUIController() {
-
-    }
+    function BasicUIController() {}
 
     var publicAPI = {
         GameController,
@@ -116,7 +117,7 @@ var Controllers = (function hideInternals() {
     // =====================================
 
     function createPlayers(config) {
-        var { type, player1Name, player2Name } = config;
+        var { type, player1Name, player2Name, difficulty } = config;
         var { Player, Bot } = TicTacToe;
 
         var players;
@@ -130,14 +131,18 @@ var Controllers = (function hideInternals() {
                 break;
 
             case GameTypes.PLAYER_VS_BOT:
-                // players = [ new Player(player1Name, 'X'), new Bot('Bot McBotFace', 'O') ];
-                // break;
-                throw new Error('Not implemented.');
+                players = [
+                    new Player(player1Name, 'X'),
+                    new Bot('Bot McBotFace', 'O', difficulty),
+                ];
+                break;
 
             case GameTypes.BOT_VS_BOT:
-                // players = [ new Bot('Bot McBotFace', 'X'), new Bot('Another Bot', 'O') ];
-                // break;
-                throw new Error('Not implemented.');
+                players = [
+                    new Bot('Bot McBotFace', 'X', difficulty),
+                    new Bot('Another Bot', 'O', difficulty),
+                ];
+                break;
 
             default:
                 throw new Error(`Unknown game type: "${type}."`);

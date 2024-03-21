@@ -7,9 +7,8 @@ var TicTacToe = (function hideInternals() {
     const BOARD_POSITION_REGEX = /^[A-C][1-3]$/i;
 
     const SYMBOLS = ['X', 'O'];
-    const CENTER = 5;
+    const CENTER = 4;
     const CORNERS = [0, 2, 6, 8];
-    const EDGES = [1, 3, 5, 7];
 
     const winConditions = {
         'horizontal-top': [0, 1, 2],
@@ -22,6 +21,12 @@ var TicTacToe = (function hideInternals() {
         'diagonal-right': [2, 4, 6],
     };
 
+    const BotDifficulty = {
+        EASY: 'EASY',
+        MEDIUM: 'MEDIUM',
+        HARD: 'HARD',
+    };
+
     var publicAPI = {
         Game,
         Player,
@@ -29,6 +34,7 @@ var TicTacToe = (function hideInternals() {
         parseToArrayPosition,
         parseToBoardPosition,
         winConditions: Utils.deepClone(winConditions),
+        BotDifficulty: Utils.deepClone(BotDifficulty),
     };
 
     return publicAPI;
@@ -188,148 +194,199 @@ var TicTacToe = (function hideInternals() {
     }
 
     function Player(name, symbol) {
-        return Object.assign(BasePlayer(name, symbol));
+        return BasePlayer(name, symbol);
     }
 
-    function Bot(name, symbol) {
+    function Bot(name, symbol, difficulty = BotDifficulty.EASY) {
         var mySymbol = symbol;
 
-        var plays = [
-            function getWinningPlay(board) {
-                for (let row of Object.values(winConditions)) {
-                    let rowSymbols = getSymbolsOnRow(board, row);
-                    let numberOfBotPlacedSymbols = countSymbols(
-                        rowSymbols,
-                        (rowSymbol) => rowSymbol === mySymbol
-                    );
+        var plays = {
+            win: {
+                baseChance: 0.5,
+                fn: function getWinningPlay(board) {
+                    for (let row of Object.values(winConditions)) {
+                        let rowSymbols = getSymbolsOnRow(board, row);
+                        let numberOfBotPlacedSymbols = countSymbols(
+                            rowSymbols,
+                            (rowSymbol) => rowSymbol === mySymbol
+                        );
 
-                    if (numberOfBotPlacedSymbols !== 2) {
-                        continue;
+                        if (numberOfBotPlacedSymbols !== 2) {
+                            continue;
+                        }
+
+                        let emptyCellIndex = rowSymbols.findIndex(
+                            (rowSymbol) => rowSymbol == EMPTY_CELL
+                        );
+                        if (emptyCellIndex === -1) {
+                            continue;
+                        }
+
+                        return row[emptyCellIndex];
                     }
 
-                    let emptyCellIndex = rowSymbols.findIndex(
-                        (rowSymbol) => rowSymbol == EMPTY_CELL
-                    );
-                    if (emptyCellIndex === -1) {
-                        continue;
-                    }
-
-                    return row[emptyCellIndex];
-                }
-
-                return null;
+                    return null;
+                },
             },
-            function getDefensivePlay(board) {
-                for (let row of Object.values(winConditions)) {
-                    let rowSymbols = getSymbolsOnRow(board, row);
-                    let numberOfOtherPlayerPlaceSymbols = countSymbols(
-                        rowSymbols,
-                        (rowSymbol) =>
-                            rowSymbol !== mySymbol && rowSymbol !== EMPTY_CELL
-                    );
+            defense: {
+                baseChance: 0.6,
+                fn: function getDefensivePlay(board) {
+                    for (let row of Object.values(winConditions)) {
+                        let rowSymbols = getSymbolsOnRow(board, row);
+                        let numberOfOtherPlayerPlaceSymbols = countSymbols(
+                            rowSymbols,
+                            (rowSymbol) =>
+                                rowSymbol !== mySymbol &&
+                                rowSymbol !== EMPTY_CELL
+                        );
 
-                    if (numberOfOtherPlayerPlaceSymbols !== 2) {
-                        continue;
+                        if (numberOfOtherPlayerPlaceSymbols !== 2) {
+                            continue;
+                        }
+
+                        let emptyCellIndex = rowSymbols.findIndex(
+                            (rowSymbol) => rowSymbol == EMPTY_CELL
+                        );
+                        if (emptyCellIndex === -1) {
+                            continue;
+                        }
+
+                        return row[emptyCellIndex];
                     }
 
-                    let emptyCellIndex = rowSymbols.findIndex(
-                        (rowSymbol) => rowSymbol == EMPTY_CELL
-                    );
-                    if (emptyCellIndex === -1) {
-                        continue;
-                    }
-
-                    return row[emptyCellIndex];
-                }
-
-                return null;
+                    return null;
+                },
             },
-            function getCornerPlay(board) {},
-            function getCompletionPlay(board) {
-                for (let row of Object.values(winConditions)) {
-                    let rowSymbols = getSymbolsOnRow(board, row);
-                    let numberOfBotPlacedSymbols = countSymbols(
-                        rowSymbols,
-                        (rowSymbol) => rowSymbol === mySymbol
-                    );
+            corner: {
+                baseChance: 0.7,
+                fn: function getCornerPlay(board) {
+                    var currentTurn = getGameTurn(board);
 
-                    if (numberOfBotPlacedSymbols !== 1) {
-                        continue;
+                    if (currentTurn === board.length) {
+                        // There's no empty cell for some reason.
+                        return null;
                     }
 
-                    let emptyCells = row.filter(
-                        (rowIndex) => board[rowIndex] == EMPTY_CELL
-                    );
+                    switch (currentTurn) {
+                        case 0:
+                            // Place on random corner.
+                            return Utils.getRandomChoice(...CORNERS);
+                        case 1:
+                            let takenCorner = CORNERS.filter(
+                                (corner) => board[corner] !== EMPTY_CELL
+                            )[0];
+                            let isACornerTaken =
+                                takenCorner != undefined &&
+                                board[takenCorner] !== mySymbol;
 
-                    if (emptyCells.length !== 2) {
-                        continue;
+                            // If opponent already placed at corner,
+                            // place at center to counter,
+                            // otherwise place at a random corner.
+                            return isACornerTaken
+                                ? CENTER
+                                : Utils.getRandomChoice(...CORNERS);
+                        case 2:
+                            let myCorner = CORNERS.filter(
+                                (corner) => board[corner] !== EMPTY_CELL
+                            ).find((corner) => board[corner] === mySymbol);
+                            let oppositeCorner = getOppositeCorner(myCorner);
+                            let isCenterEmpty = board[CENTER] === EMPTY_CELL;
+
+                            // Favor taking the center,
+                            // then taking the opposite corner,
+                            // or simply another corner.
+                            return isCenterEmpty
+                                ? CENTER
+                                : oppositeCorner != null &&
+                                  board[oppositeCorner] === EMPTY_CELL
+                                ? oppositeCorner
+                                : Utils.getRandomChoice(
+                                      ...CORNERS.filter(
+                                          (corner) =>
+                                              board[corner] !== EMPTY_CELL
+                                      )
+                                  );
+
+                        case 4:
+                            let emptyCorners = CORNERS.filter(
+                                (corner) => board[corner] === EMPTY_CELL
+                            );
+
+                            // Try to complete a third corner(possibly) to setup a trap.
+                            return Utils.getRandomChoice(...emptyCorners);
+                        default:
+                            return null;
+                    }
+                },
+            },
+            completion: {
+                baseChance: 0.8,
+                fn: function getCompletionPlay(board) {
+                    for (let row of Object.values(winConditions)) {
+                        let rowSymbols = getSymbolsOnRow(board, row);
+                        let numberOfBotPlacedSymbols = countSymbols(
+                            rowSymbols,
+                            (rowSymbol) => rowSymbol === mySymbol
+                        );
+
+                        if (numberOfBotPlacedSymbols !== 1) {
+                            continue;
+                        }
+
+                        let emptyCells = row.filter(
+                            (rowIndex) => board[rowIndex] == EMPTY_CELL
+                        );
+
+                        if (emptyCells.length !== 2) {
+                            continue;
+                        }
+
+                        let randomEmptyCellIndex = Utils.getRandomChoice(
+                            ...emptyCells
+                        );
+
+                        return randomEmptyCellIndex;
                     }
 
-                    let randomEmptyCellIndex = Utils.getRandomChoice(
-                        ...emptyCells
-                    );
-
-                    return randomEmptyCellIndex;
-                }
-
-                return null;
+                    return null;
+                },
             },
-            function getRandomPlay(board) {
-                var availablePositions = board
-                    .map((_, index) => index)
-                    .filter((index) => board[index] === EMPTY_CELL);
+            random: {
+                fn: function getRandomPlay(board) {
+                    var availablePositions = board
+                        .map((_, index) => index)
+                        .filter((index) => board[index] === EMPTY_CELL);
 
-                return Utils.getRandomChoice(...availablePositions);
+                    return Utils.getRandomChoice(...availablePositions);
+                },
             },
-        ];
+        };
 
         return Object.assign(BasePlayer(name, symbol), {
             play: async function (board) {
-                // Winning play first -> try to win.
-                var play1 = plays[0](board);
-                console.log(
-                    'Winning play:',
-                    play1 !== null ? parseToBoardPosition(play1) : null,
-                    play1
-                );
+                var [positionIndex] = Object.values(plays)
+                    .map(({ baseChance, fn }) => {
+                        if (baseChance == null) {
+                            return fn;
+                        }
+                        var chance = getPlayChanceByDifficulty(
+                            difficulty,
+                            baseChance
+                        );
+                        return Math.random() < chance ? fn : null;
+                    })
+                    .filter((fn) => !!fn)
+                    .map((fn) => fn(board))
+                    .filter((index) => index != null);
 
-                // Defensive play -> check if loss is iminent and act accordingly.
-                var play2 = plays[1](board);
-                console.log(
-                    'Defensive play:',
-                    play2 !== null ? parseToBoardPosition(play2) : null,
-                    play2
-                );
+                if (positionIndex == null) {
+                    // Shouldn't get here. ¯\_(ツ)_/¯
+                    throw new Error(
+                        'No positions available! Something wrong is not quite right... 😅'
+                    );
+                }
 
-                // Try to play the CORNERS ?
-
-                // var play3 = plays[2](board);
-                // console.log(
-                //     'Corner play:',
-                //     play3 !== null ? parseToBoardPosition(play3) : null,
-                //     play3
-                // );
-
-                // Completion play -> Try to place a symbol to set up wins.
-                var play4 = plays[3](board);
-                console.log(
-                    'Completion play:',
-                    play4 !== null ? parseToBoardPosition(play4) : null,
-                    play4
-                );
-
-                // Random play -> just random
-                var play5 = plays[4](board);
-                console.log(
-                    'Random play:',
-                    play5 !== null ? parseToBoardPosition(play5) : null,
-                    play5
-                );
-
-                // Shouldn't get here. ¯\_(ツ)_/¯
-                // throw new Error(
-                //     'No positions available! Something wrong is not quite right... 😅'
-                // );
+                return parseToBoardPosition(positionIndex);
             },
         });
     }
@@ -349,6 +406,17 @@ var TicTacToe = (function hideInternals() {
             throwGameError('No such corner exists.');
         }
         return Math.abs(corner - 8);
+    }
+
+    function getPlayChanceByDifficulty(difficulty, baseChance) {
+        switch (difficulty) {
+            case BotDifficulty.EASY:
+                return baseChance / 2;
+            case BotDifficulty.HARD:
+                return 1;
+            default:
+                return baseChance;
+        }
     }
 
     function getSymbolsOnRow(board, row) {
