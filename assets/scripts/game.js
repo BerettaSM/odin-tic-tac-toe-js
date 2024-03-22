@@ -54,10 +54,8 @@ var TicTacToe = (function hideInternals() {
         var instance = {
             placeAtPosition,
             reset,
-            toString,
         };
 
-        // Define getters.
         Object.defineProperties(instance, {
             board: {
                 get() {
@@ -93,7 +91,7 @@ var TicTacToe = (function hideInternals() {
         function placeAtPosition(tentativePlay) {
             // Throws an error if game is already over.
             if (_isOver) {
-                throwGameError('Game is already over');
+                throwGameError('Game is already over.');
             }
 
             // Parse the given position to an array index.
@@ -101,7 +99,7 @@ var TicTacToe = (function hideInternals() {
 
             // If position is already taken throw an error.
             if (_board[index] != EMPTY_CELL) {
-                throwGameError('Position is already taken');
+                throwGameError(`Position "${tentativePlay}" is already taken.`);
             }
 
             var symbol = getNextSymbol();
@@ -122,20 +120,6 @@ var TicTacToe = (function hideInternals() {
             _isOver = false;
             _winner = null;
             _winningRow = null;
-        }
-
-        // TODO: Move this to string to a presentation controller.
-        function toString() {
-            var str = '  -------------\n';
-            for (let i = 0; i < 3; i++) {
-                str += String.fromCharCode(i + 65);
-                str += ' | ';
-                str += _board.slice(i * 3, i * 3 + 3).join(' | ');
-                str += ' |\n';
-                str += '  -------------\n';
-            }
-            str += '    1   2   3\n';
-            return str;
         }
 
         // ============ INTERNALS ================
@@ -211,6 +195,8 @@ var TicTacToe = (function hideInternals() {
                 }
 
                 var [positionIndex] = Object.values(botPlays)
+
+                    // Get plays based on difficulty/chance.
                     .map(([playFn, baseChance]) => {
                         // No base chance means the function get added to the pool.
                         if (baseChance == null) {
@@ -222,8 +208,15 @@ var TicTacToe = (function hideInternals() {
                         );
                         return Math.random() < chance ? playFn : null;
                     })
+
+                    // Leave only functions that got past.
                     .filter((playFn) => !!playFn)
+
+                    // Call them and get a board position to play.
                     .map((playFn) => playFn(board, botSymbol))
+
+                    // Pick the value from the first function that resolved
+                    // on a valid board position.
                     .filter((index) => index != null);
 
                 if (positionIndex == null) {
@@ -397,7 +390,7 @@ var TicTacToe = (function hideInternals() {
         }
         // sanity check
         if (corner < 0 || corner > 8) {
-            throwGameError('No such corner exists.');
+            throw new Error(`No such corner exists. Corner: "${corner}"`);
         }
         return Math.abs(corner - 8);
     }
@@ -429,7 +422,7 @@ var TicTacToe = (function hideInternals() {
 
     function parseToArrayPosition(play) {
         if (!BOARD_POSITION_REGEX.test(play)) {
-            throwGameError(`Invalid position "${play}" received`);
+            throwGameError(`Invalid position "${play}" received.`);
         }
         var row = play[0].toUpperCase().charCodeAt(0) - 65;
         var col = Number(play[1]) - 1;
@@ -438,7 +431,7 @@ var TicTacToe = (function hideInternals() {
 
     function parseToBoardPosition(play) {
         if (!ARRAY_POSITION_REGEX.test(play)) {
-            throwGameError(`Invalid board index "${play}" received`);
+            throwGameError(`Invalid board index "${play}" received.`);
         }
         var row = Math.floor(play / 3) + 65;
         var col = (Number(play) % 3) + 1;
