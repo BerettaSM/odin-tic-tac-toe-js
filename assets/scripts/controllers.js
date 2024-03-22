@@ -23,16 +23,17 @@ var Controllers = (function hideInternals() {
     };
 
     // GameController: Responsible for overall game flow.
-    function GameController(config = {}) {
-        config = Object.assign({}, baseConfig, config);
-
-        var _game = new TicTacToe.Game();
-        var _players = createPlayers(config);
+    function GameController() {
+        var initiated = false;
+        var _config = null;
+        var _game = null;
+        var _players = null;
         var _scores = { X: 0, O: 0 };
 
         var instance = {
             nextTurn,
             rematch,
+            init,
         };
 
         Object.defineProperties(instance, {
@@ -68,11 +69,22 @@ var Controllers = (function hideInternals() {
             },
         });
 
-        return Object.freeze(instance);
+        return new Proxy(instance, {
+            get: function(target, prop) {
+                if(!initiated && prop !== 'init') {
+                    throw new Error('You must initiate the game by calling .init().');
+                }
+                return target[prop];
+            },
+        });
 
         // =====================================
 
         function nextTurn(tentativePlay) {
+            if(!initiated) {
+                throw new Error('You must initiate the controller by calling .init().')
+            }
+
             try {
                 _game.placeAtPosition(tentativePlay);
 
@@ -85,11 +97,11 @@ var Controllers = (function hideInternals() {
                         _scores[winner.symbol]++;
                     }
 
-                    config.onGameOverCallback(winner, _game.winningRow);
+                    _config.onGameOverCallback(winner, _game.winningRow);
                 }
             } catch (e) {
                 if (e instanceof Error && e.name === 'TicTacToeError') {
-                    config.onInvalidPlayCallback(tentativePlay, e.message);
+                    _config.onInvalidPlayCallback(tentativePlay, e.message);
                 }
                 throw e;
             }
@@ -98,10 +110,29 @@ var Controllers = (function hideInternals() {
         function rematch() {
             _game.reset();
         }
+
+        function init(config) {
+            if(initiated) {
+                throw new Error('Cannot initiate the controller again.');
+            }
+            initiated = true;
+            _config = Object.assign({}, baseConfig, config);
+            _players = createPlayers(_config);
+            _game = new TicTacToe.Game();
+        }
     }
 
     // Controls a basic game in browser console.
-    function BasicUIController() {}
+    function BasicUIController(gameController) {
+
+        var instance = {};
+
+        return instance;
+
+        // =====================================
+
+
+    }
 
     var publicAPI = {
         GameController,
