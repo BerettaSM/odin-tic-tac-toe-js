@@ -3,6 +3,7 @@
 var Utils = (function () {
     var publicAPI = {
         clone,
+        createInitProxy,
         deepClone,
         deepFreeze,
         getRandomChoice,
@@ -47,10 +48,10 @@ var Utils = (function () {
     }
 
     function getRandomChoice(...options) {
-        if(Array.isArray(options[0])) {
+        if (Array.isArray(options[0])) {
             options = options[0];
         }
-        if(options.length === 0) {
+        if (options.length === 0) {
             return null;
         }
         var randomIndex = getRandomNumber(0, options.length - 1);
@@ -59,5 +60,27 @@ var Utils = (function () {
 
     function getRandomNumber(min, max) {
         return min + Math.floor(Math.random() * (max - min + 1));
+    }
+
+    function createInitProxy(
+        wrappeeObj,
+        initProp = 'init',
+        allowReinitialization = false
+    ) {
+        var initiated = false;
+
+        return new Proxy(wrappeeObj, {
+            get: function (target, prop) {
+                if (!allowReinitialization && initiated && prop === initProp) {
+                    throw new Error('This object cannot be reinitialized.');
+                } else if (!initiated && prop !== initProp) {
+                    throw new Error(
+                        `You must initiate this object by calling .${initProp}().`
+                    );
+                }
+                initiated = true;
+                return target[prop];
+            },
+        });
     }
 })();
