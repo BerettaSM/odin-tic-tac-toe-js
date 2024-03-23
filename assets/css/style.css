@@ -53,17 +53,38 @@ h6 {
 :root {
     --BG_HUE: 245;
     --BG_SAT: 100%;
-    --BG_LIGTH: 14%;
-    --COLOR_BG: hsl(var(--BG_HUE), var(--BG_SAT), var(--BG_LIGTH));
+    --BG_LIGHT: 14%;
+    --COLOR_BG: hsl(var(--BG_HUE), var(--BG_SAT), var(--BG_LIGHT));
     --COLOR_BG_OFF: hsl(
         var(--BG_HUE),
         calc(var(--BG_SAT) - 40%),
-        calc(var(--BG_LIGTH) - 10%)
+        calc(var(--BG_LIGHT) - 10%)
     );
 
-    --COLOR_PRIMARY: hsl(334, 100%, 46%);
+    --PRIMARY_HUE: 334;
+    --PRIMARY_SAT: 100%;
+    --PRIMARY_LIGHT: 46%;
+    --COLOR_PRIMARY: hsl(
+        var(--PRIMARY_HUE),
+        var(--PRIMARY_SAT),
+        var(--PRIMARY_LIGHT)
+    );
+    --COLOR_PRIMARY_SHADOW: hsl(
+        var(--PRIMARY_HUE) var(--PRIMARY_SAT) var(--PRIMARY_LIGHT) / 0.25
+    );
+    --COLOR_PRIMARY_DARK: hsl(
+        var(--PRIMARY_HUE),
+        calc(var(--PRIMARY_SAT)),
+        calc(var(--PRIMARY_LIGHT) - 15%)
+    );
+    --COLOR_PRIMARY_DARKER: hsl(
+        var(--PRIMARY_HUE),
+        calc(var(--PRIMARY_SAT)),
+        calc(var(--PRIMARY_LIGHT) - 25%)
+    );
     --COLOR_SECONDARY: hsl(328, 100%, 35%);
     --COLOR_TERTIARY: hsl(336, 100%, 69%);
+    --TEXT-WHITE: whitesmoke;
 }
 
 body {
@@ -90,7 +111,8 @@ a::before {
     width: 100%;
     background-color: var(--COLOR_SECONDARY);
     transform: translateY(94%);
-    transition: transform 400ms ease-in, background-color 400ms ease-in, opacity 400ms ease-in, filter 400ms ease-in;
+    transition: transform 400ms ease-in, background-color 400ms ease-in,
+        opacity 400ms ease-in, filter 400ms ease-in;
     z-index: -1;
 }
 
@@ -105,7 +127,8 @@ a:active::before {
     background-color: var(--COLOR_TERTIARY);
     transform: translateY(0%);
     filter: brightness(1.35);
-    transition: transform 200ms ease-out, background-color 200ms ease-out, opacity 200ms ease-out, filter 200ms ease-out;
+    transition: transform 200ms ease-out, background-color 200ms ease-out,
+        opacity 200ms ease-out, filter 200ms ease-out;
 }
 
 .app {
@@ -132,21 +155,107 @@ a:active::before {
 }
 
 .app .main {
+    position: relative;
     flex: auto;
     width: 100%;
 }
 
-.pages {
-    position: relative;
-}
-
-.menu-page {
+.main__page {
     position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 100%;
+    width: 100%;
     opacity: 0;
+    pointer-events: none;
 }
 
-.menu-page.active {
+.main__page-active {
     opacity: 1;
+    pointer-events: all;
+}
+
+/* 3D Magical Buttons, by Josh W. Comeau - https://www.joshwcomeau.com/animation/3d-button/ */
+.pushable {
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    outline-offset: 4px;
+    transition: filter 250ms;
+}
+
+.pushable__shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: var(--COLOR_PRIMARY_SHADOW);
+    will-change: transform;
+    transform: translateY(2px);
+    transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+.pushable__edge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(
+        to left,
+        var(--COLOR_PRIMARY_DARKER) 0%,
+        var(--COLOR_PRIMARY_DARK) 8%,
+        var(--COLOR_PRIMARY_DARK) 92%,
+        var(--COLOR_PRIMARY_DARKER) 100%
+    );
+}
+
+.pushable__label {
+    display: block;
+    position: relative;
+    background-color: var(--COLOR_PRIMARY);
+    color: var(--TEXT-WHITE);
+    border-radius: 12px;
+    padding: 12px 42px;
+    font-size: 1.25rem;
+    will-change: transform;
+    transform: translateY(-4px);
+    transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+.pushable:hover {
+    filter: brightness(110%);
+}
+
+.pushable:hover .pushable__label {
+    transform: translateY(-6px);
+    transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+}
+
+.pushable:active .pushable__label {
+    transform: translateY(-2px);
+    transition: transform 34ms;
+}
+
+.pushable:hover .pushable__shadow {
+    transform: translateY(4px);
+    transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+}
+
+.pushable:active .pushable__shadow {
+    transform: translateY(1px);
+    transition: transform 34ms;
+}
+
+.pushable:focus:not(:focus-visible) {
+    outline: none;
 }
 
 .max-width {
