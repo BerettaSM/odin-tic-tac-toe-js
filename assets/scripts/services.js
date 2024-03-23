@@ -1,3 +1,5 @@
+'use strict';
+
 var GameService = (function hideInternals() {
     var { BotDifficulty, GameTypes } = TicTacToe;
 
