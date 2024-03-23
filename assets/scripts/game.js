@@ -45,6 +45,8 @@ var TicTacToe = (function hideInternals() {
     // =======================================
 
     function Game() {
+        var _symbols = [...SYMBOLS];
+        Utils.shuffle(_symbols);
         var _board = Array(9).fill(EMPTY_CELL);
         var _turn = 0;
         var _isOver = false;
@@ -120,6 +122,7 @@ var TicTacToe = (function hideInternals() {
             _isOver = false;
             _winner = null;
             _winningRow = null;
+            Utils.shuffle(_symbols);
         }
 
         // ============ INTERNALS ================
@@ -135,7 +138,7 @@ var TicTacToe = (function hideInternals() {
                 let placedSymbols = positions.map(
                     (position) => _board[position]
                 );
-                for (let symbol of SYMBOLS) {
+                for (let symbol of _symbols) {
                     if (
                         placedSymbols.every(
                             (placedSymbol) => placedSymbol === symbol
@@ -157,7 +160,7 @@ var TicTacToe = (function hideInternals() {
 
         function getNextSymbol() {
             var nextSymbolIndex = _turn % 2;
-            return SYMBOLS[nextSymbolIndex];
+            return _symbols[nextSymbolIndex];
         }
     }
 
