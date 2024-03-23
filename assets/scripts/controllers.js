@@ -23,7 +23,7 @@ var ConsoleGameController = (function hideInternals() {
 
     // =========== INTERNALS ===============
 
-    function _init(gameService) {
+    async function _init(gameService) {
         // Warn the player the game will be played through the browser console
         window.alert(
             'This TicTacToe game will be played through the browser console.\n\n' +
@@ -36,7 +36,7 @@ var ConsoleGameController = (function hideInternals() {
         var config = collectConfig();
 
         // init the game service with configs
-        gameService.init(config);
+        gameService.init({ ...config, botArtificialPlayDelayRange: [1000, 3500] });
 
         var replay;
 
@@ -58,7 +58,7 @@ var ConsoleGameController = (function hideInternals() {
                 try {
                     // The tentative play gets internally ignored
                     // if the current player is a bot.
-                    gameService.playTurn(tentativePlay);
+                    await gameService.playTurn(tentativePlay);
                 } catch (e) {
                     if (e instanceof Error && e.name === 'TicTacToeError') {
                         window.alert(e.message);

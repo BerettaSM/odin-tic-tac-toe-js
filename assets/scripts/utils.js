@@ -8,6 +8,7 @@ var Utils = (function () {
         deepFreeze,
         getRandomChoice,
         getRandomNumber,
+        sleep,
     };
 
     return Object.freeze(publicAPI);
@@ -81,6 +82,12 @@ var Utils = (function () {
                 initiated = true;
                 return target[prop];
             },
+        });
+    }
+
+    async function sleep(ms = 1000) {
+        return new Promise((resolve) => {
+            setTimeout(() => resolve(), ms);
         });
     }
 })();

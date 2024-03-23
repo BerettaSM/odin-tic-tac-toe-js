@@ -3,6 +3,7 @@ var GameService = (function hideInternals() {
 
     var baseConfig = {
         botDifficulty: BotDifficulty.EASY,
+        botArtificialPlayDelayRange: null, // [ 1500, 3500 ] -> In ms, pick random value inside range.
         gameType: GameTypes.PLAYER_VS_PLAYER,
         P1Name: 'Player 1',
         P2Name: 'Player 2',
@@ -13,6 +14,12 @@ var GameService = (function hideInternals() {
                 console.log(`${winner.name} won!`);
                 console.log(`Victory at ${winningRow}`);
             }
+        },
+        onBotStartThinkingCallback: function onBotStartThinking(name, symbol) {
+            console.log(`${name} ( ${symbol} ) is thinking...`);
+        },
+        onBotDoneThinkingCallback: function onBotDoneThinking(name, symbol) {
+            console.log(`${name} ( ${symbol} ) settled on a play.`);
         },
     };
 
@@ -42,7 +49,7 @@ var GameService = (function hideInternals() {
             },
             currentPlayer: {
                 get() {
-                    return Utils.clone(getPlayer(_game.currentSymbol));
+                    return Utils.clone(getPlayer(_players, _game.currentSymbol));
                 },
             },
             isGameOver: {
@@ -80,22 +87,18 @@ var GameService = (function hideInternals() {
 
         // =====================================
 
-        function playTurn(tentativePlay) {
-            var player = getPlayer(_game.currentSymbol);
-
+        async function playTurn(tentativePlay) {
+            var player = getPlayer(_players, _game.currentSymbol);
             if ('play' in player) {
                 // Player is actually a bot, wait for him to play.
-                // This will possibly be async in the future,
-                // to add delays to bot answers.
-                let botPlay = player.play([..._game.board]);
-                _game.placeAtPosition(botPlay);
+                await handleArtificialBotPlay(player);
             } else {
                 // Just use the provided tentativePlay.
                 _game.placeAtPosition(tentativePlay);
             }
 
             if (_game.isOver) {
-                var winner = _players.find((p) => p.symbol === _game.winner);
+                var winner = getPlayer(_players, _game.winner);
 
                 if (winner) {
                     _scores[winner.symbol]++;
@@ -103,10 +106,6 @@ var GameService = (function hideInternals() {
 
                 _config.onGameOverCallback(winner, _game.winningRow);
             }
-        }
-
-        function getPlayer(symbol) {
-            return _players.find((p) => p.symbol === symbol);
         }
 
         function rematch() {
@@ -117,6 +116,29 @@ var GameService = (function hideInternals() {
             _config = Object.assign({}, baseConfig, config);
             _players = createPlayers(_config);
             _game = new TicTacToe.Game();
+        }
+
+        // =======================================
+
+        async function handleArtificialBotPlay(bot) {
+            let botPlay = bot.play([..._game.board]);
+    
+            if(_config.botArtificialPlayDelayRange) {
+                let [min, max] = _config.botArtificialPlayDelayRange;
+                let timeout = Utils.getRandomNumber(min, max);
+    
+                if(_config.onBotStartThinkingCallback) {
+                    _config.onBotStartThinkingCallback(bot.name, bot.symbol);
+                }
+    
+                await Utils.sleep(timeout);
+                
+                if(_config.onBotDoneThinkingCallback) {
+                    _config.onBotDoneThinkingCallback(bot.name, bot.symbol);
+                }
+            }
+    
+            _game.placeAtPosition(botPlay);
         }
     }
 
@@ -151,5 +173,9 @@ var GameService = (function hideInternals() {
         }
 
         return players;
+    }
+
+    function getPlayer(players, symbol) {
+        return players.find((p) => p.symbol === symbol);
     }
 })();
