@@ -49,3 +49,67 @@ h6 {
 }
 
 /* Styles */
+
+:root {
+    --BG_HUE: 245;
+    --BG_SAT: 100%;
+    --BG_LIGTH: 14%;
+    --COLOR_BG: hsl(var(--BG_HUE), var(--BG_SAT), var(--BG_LIGTH));
+    --COLOR_BG_OFF: hsl(var(--BG_HUE), calc(var(--BG_SAT) - 40%), calc(var(--BG_LIGTH) - 10%));
+
+    --COLOR_PRIMARY: hsl(334, 100%, 46%);
+    --COLOR_SECONDARY: hsl(328, 100%, 35%);
+    --COLOR_TERTIARY: hsl(336, 100%, 69%);
+}
+
+body {
+    background: radial-gradient(
+        var(--COLOR_BG),
+        var(--COLOR_BG_OFF) 65%
+    );
+    font-family: 'Truculenta', sans-serif;
+}
+
+a {
+    color: var(--COLOR_TERTIARY);
+    text-decoration: none;
+    transition: color 350ms ease-in-out;
+}
+
+a:hover, a:active {
+    color: var(--COLOR_SECONDARY);
+    text-decoration: underline;
+    transition: color 150ms ease-in-out;
+}
+
+.app {
+    height: 100%;
+    width: 100%;
+    padding-block: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.app h1 {
+    color: var(--COLOR_PRIMARY);
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 3rem;
+}
+
+.app footer {
+    color: var(--COLOR_PRIMARY);
+    font-size: 1.2rem;
+}
+
+.max-width {
+    max-width: 1200px;
+    padding-inline: 16px;
+    margin: auto;
+}
+
+.text-shadow {
+    text-shadow: 2px 4px 12px currentColor;
+}
