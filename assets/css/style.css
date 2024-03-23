@@ -55,7 +55,11 @@ h6 {
     --BG_SAT: 100%;
     --BG_LIGTH: 14%;
     --COLOR_BG: hsl(var(--BG_HUE), var(--BG_SAT), var(--BG_LIGTH));
-    --COLOR_BG_OFF: hsl(var(--BG_HUE), calc(var(--BG_SAT) - 40%), calc(var(--BG_LIGTH) - 10%));
+    --COLOR_BG_OFF: hsl(
+        var(--BG_HUE),
+        calc(var(--BG_SAT) - 40%),
+        calc(var(--BG_LIGTH) - 10%)
+    );
 
     --COLOR_PRIMARY: hsl(334, 100%, 46%);
     --COLOR_SECONDARY: hsl(328, 100%, 35%);
@@ -63,23 +67,45 @@ h6 {
 }
 
 body {
-    background: radial-gradient(
-        var(--COLOR_BG),
-        var(--COLOR_BG_OFF) 65%
-    );
+    background: radial-gradient(var(--COLOR_BG), var(--COLOR_BG_OFF) 65%);
     font-family: 'Truculenta', sans-serif;
 }
 
 a {
+    vertical-align: bottom;
+    display: inline-block;
+    padding-inline: 2px;
+    position: relative;
     color: var(--COLOR_TERTIARY);
     text-decoration: none;
-    transition: color 350ms ease-in-out;
+    overflow: hidden;
+    transition: color 400ms ease-in;
 }
 
-a:hover, a:active {
-    color: var(--COLOR_SECONDARY);
-    text-decoration: underline;
-    transition: color 150ms ease-in-out;
+a::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    background-color: var(--COLOR_SECONDARY);
+    transform: translateY(94%);
+    transition: transform 400ms ease-in, background-color 400ms ease-in, opacity 400ms ease-in, filter 400ms ease-in;
+    z-index: -1;
+}
+
+a:hover,
+a:active {
+    color: var(--COLOR_PRIMARY);
+    transition: color 200ms ease-out;
+}
+
+a:hover::before,
+a:active::before {
+    background-color: var(--COLOR_TERTIARY);
+    transform: translateY(0%);
+    filter: brightness(1.35);
+    transition: transform 200ms ease-out, background-color 200ms ease-out, opacity 200ms ease-out, filter 200ms ease-out;
 }
 
 .app {
@@ -102,6 +128,25 @@ a:hover, a:active {
 .app footer {
     color: var(--COLOR_PRIMARY);
     font-size: 1.2rem;
+    text-align: center;
+}
+
+.app .main {
+    flex: auto;
+    width: 100%;
+}
+
+.pages {
+    position: relative;
+}
+
+.menu-page {
+    position: absolute;
+    opacity: 0;
+}
+
+.menu-page.active {
+    opacity: 1;
 }
 
 .max-width {
