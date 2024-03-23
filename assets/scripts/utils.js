@@ -9,6 +9,7 @@ var Utils = (function () {
         getRandomChoice,
         getRandomNumber,
         sleep,
+        shuffle,
     };
 
     return Object.freeze(publicAPI);
@@ -19,6 +20,28 @@ var Utils = (function () {
         var prototype = Object.getPrototypeOf(obj);
         var clone = Object.assign(Object.create(prototype), obj);
         return clone;
+    }
+
+    function createInitProxy(
+        wrappeeObj,
+        initProp = 'init',
+        allowReinitialization = false
+    ) {
+        var initiated = false;
+
+        return new Proxy(wrappeeObj, {
+            get: function (target, prop) {
+                if (!allowReinitialization && initiated && prop === initProp) {
+                    throw new Error('This object cannot be reinitialized.');
+                } else if (!initiated && prop !== initProp) {
+                    throw new Error(
+                        `You must initiate this object by calling .${initProp}().`
+                    );
+                }
+                initiated = true;
+                return target[prop];
+            },
+        });
     }
 
     function _deepClone(obj) {
@@ -63,26 +86,8 @@ var Utils = (function () {
         return min + Math.floor(Math.random() * (max - min + 1));
     }
 
-    function createInitProxy(
-        wrappeeObj,
-        initProp = 'init',
-        allowReinitialization = false
-    ) {
-        var initiated = false;
-
-        return new Proxy(wrappeeObj, {
-            get: function (target, prop) {
-                if (!allowReinitialization && initiated && prop === initProp) {
-                    throw new Error('This object cannot be reinitialized.');
-                } else if (!initiated && prop !== initProp) {
-                    throw new Error(
-                        `You must initiate this object by calling .${initProp}().`
-                    );
-                }
-                initiated = true;
-                return target[prop];
-            },
-        });
+    function shuffle(arr) {
+        arr.sort(() => getRandomNumber(-1, 1));
     }
 
     async function sleep(ms = 1000) {
