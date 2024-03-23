@@ -55,6 +55,11 @@ h6 {
     --BG_SAT: 100%;
     --BG_LIGHT: 14%;
     --COLOR_BG: hsl(var(--BG_HUE), var(--BG_SAT), var(--BG_LIGHT));
+    --COLOR_BG_LIGHT: hsl(
+        var(--BG_HUE),
+        calc(var(--BG_SAT) - 15%),
+        calc(var(--BG_LIGHT) - 5%)
+    );
     --COLOR_BG_OFF: hsl(
         var(--BG_HUE),
         calc(var(--BG_SAT) - 40%),
@@ -172,9 +177,73 @@ a:active::before {
     pointer-events: none;
 }
 
+.main__page:last-of-type {
+    flex-direction: column;
+}
+
 .main__page-active {
     opacity: 1;
     pointer-events: all;
+}
+
+.main__page h2 {
+    font-size: 2rem;
+    color: var(--COLOR_PRIMARY);
+}
+
+.main__page .types-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.main__page .form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form__control {
+    position: relative;
+    padding-block-start: 32px;
+}
+
+.main__page .form .form__control:last-of-type {
+    padding-block-end: 40px;
+}
+
+.form__control label {
+    color: var(--COLOR_TERTIARY);
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 24px;
+    pointer-events: none;
+    font-size: 1.25rem;
+}
+
+.form__control label .letter {
+    display: inline-block;
+    transform: translateY(43px);
+    transition: transform 150ms calc(var(--i) * 50ms) ease;
+}
+
+.form__control input:focus + label .letter,
+.form__control input:not(:placeholder-shown) + label .letter {
+    transform: translateY(0px);
+}
+
+.form__control input {
+    padding: 8px 24px;
+    border: 2px solid transparent;
+    border-radius: 100vmax;
+    background-color: var(--COLOR_BG_LIGHT);
+    color: var(--COLOR_PRIMARY);
+    font-size: 1.25rem;
+}
+
+.form__control input:focus {
+    outline: 2px solid var(--COLOR_PRIMARY);
 }
 
 /* 3D Magical Buttons, by Josh W. Comeau - https://www.joshwcomeau.com/animation/3d-button/ */
@@ -183,6 +252,7 @@ a:active::before {
     border: none;
     background: transparent;
     padding: 0;
+    max-width: 320px;
     cursor: pointer;
     outline-offset: 4px;
     transition: filter 250ms;
@@ -264,6 +334,40 @@ a:active::before {
     margin: auto;
 }
 
+.app .text-glow {
+    background: linear-gradient(
+        to left,
+        var(--COLOR_TERTIARY),
+        var(--COLOR_PRIMARY),
+        var(--COLOR_SECONDARY),
+        var(--COLOR_PRIMARY),
+        var(--COLOR_TERTIARY)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 500% auto;
+    animation: text-glow 1s ease-in-out infinite alternate;
+}
+
 .text-shadow {
-    text-shadow: 2px 4px 12px currentColor;
+    animation: breath 2s infinite ease-out alternate;
+}
+
+@keyframes breath {
+    from {
+        filter: drop-shadow(1px 1px 2px currentColor) drop-shadow(-1px -1px 2px currentColor)
+    }
+    to {
+        filter: drop-shadow(2px 2px 6px currentColor) drop-shadow(-2px -2px 6px currentColor);
+    }
+}
+
+@keyframes text-glow {
+    from {
+        background-position: 0% 50%;
+    }
+    to {
+        background-position: 50% 100%;
+    }
 }

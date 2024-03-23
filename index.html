@@ -26,7 +26,7 @@
 
         <main class="main">
 
-            <div class="main__page main__page-active">
+            <div class="main__page">
 
                 <button class="pushable">
                     <span class="pushable__shadow"></span>
@@ -44,6 +44,98 @@
 
             <div class="main__page">
 
+                <h2 class="text-glow">Choose a game type</h2>
+
+                <menu class="types-menu">
+
+                    <button class="pushable">
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">Player VS Player</span>
+                    </button>
+
+                    <button class="pushable">
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">Player VS Bot</span>
+                    </button>
+
+                    <button class="pushable">
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">Bot VS Bot (Spectate)</span>
+                    </button>
+
+                </menu>
+
+            </div>
+
+            <div class="main__page">
+
+                <h2 class="text-glow">Choose a bot difficulty</h2>
+
+                <menu class="types-menu">
+
+                    <button class="pushable">
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">Easy</span>
+                    </button>
+
+                    <button class="pushable">
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">Medium</span>
+                    </button>
+
+                    <button class="pushable">
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">Hard</span>
+                    </button>
+
+                </menu>
+
+            </div>
+
+            <div class="main__page main__page-active">
+
+                <h2 class="text-glow">Enter name</h2>
+
+                <form class="form" autocomplete="off">
+
+                    <div class="form__control">
+                        <input type="text" name="p1" id="p1" placeholder="">
+                        <label for="p1">
+                            <span style="--i: 0;" class="letter">P</span><span style="--i: 1;"
+                                class="letter">l</span><span style="--i: 2;" class="letter">a</span><span
+                                style="--i: 3;" class="letter">y</span><span style="--i: 4;"
+                                class="letter">e</span><span style="--i: 5;" class="letter">r</span> <span
+                                style="--i: 6;" class="letter">(</span> <span style="--i: 7;" class="letter">X</span>
+                            <span style="--i: 8;" class="letter">)</span>
+                        </label>
+                    </div>
+
+                    <div class="form__control">
+                        <input type="text" name="p1" id="p1" placeholder="">
+                        <label for="p1">
+                            <span style="--i: 0;" class="letter">P</span><span style="--i: 1;"
+                                class="letter">l</span><span style="--i: 2;" class="letter">a</span><span
+                                style="--i: 3;" class="letter">y</span><span style="--i: 4;"
+                                class="letter">e</span><span style="--i: 5;" class="letter">r</span> <span
+                                style="--i: 6;" class="letter">(</span> <span style="--i: 7;" class="letter">O</span>
+                            <span style="--i: 8;" class="letter">)</span>
+                        </label>
+                    </div>
+
+                    <button class="pushable">
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">Play</span>
+                    </button>
+
+                </form>
+
             </div>
 
         </main>
@@ -51,11 +143,11 @@
         <footer>
             <p>
                 © <span>
-                    <script>document.write(new Date().getFullYear())</script><noscript>2024</noscript>
-                </span>.
+                    <script>document.write(new Date().getFullYear())</script><noscript>2024</noscript>.
+                </span>
                 All rights reserved. Designed for
                 <a target="_blank" href="https://www.theodinproject.com/">TheOdinProject</a>,
-                by <a target="_blank" href="https://github.com/BerettaSM">Ramon Saviato</a>
+                by <a target="_blank" href="https://github.com/BerettaSM">Ramon Saviato</a>.
             </p>
         </footer>
 
