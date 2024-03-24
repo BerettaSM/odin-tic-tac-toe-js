@@ -14,8 +14,6 @@ var GameService = (function hideInternals() {
             winningRow,
             winningCells
         ) {
-            console.log('aquiiiiiii');
-            console.log(winner, winningRow, winningCells);
             if (!winner) {
                 console.log('Tie!');
             } else {
