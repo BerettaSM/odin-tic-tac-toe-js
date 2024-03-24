@@ -26,7 +26,7 @@
 
         <main class="main">
 
-            <div class="main__page">
+            <section class="main__page">
 
                 <button class="pushable">
                     <span class="pushable__shadow"></span>
@@ -40,9 +40,9 @@
                     <span class="pushable__label">Play a match (browser console)</span>
                 </button>
 
-            </div>
+            </section>
 
-            <div class="main__page">
+            <section class="main__page">
 
                 <h2 class="text-glow">Choose a game type</h2>
 
@@ -68,9 +68,9 @@
 
                 </menu>
 
-            </div>
+            </section>
 
-            <div class="main__page">
+            <section class="main__page">
 
                 <h2 class="text-glow">Choose a bot difficulty</h2>
 
@@ -96,9 +96,9 @@
 
                 </menu>
 
-            </div>
+            </section>
 
-            <div class="main__page main__page-active">
+            <section class="main__page">
 
                 <h2 class="text-glow">Enter name</h2>
 
@@ -136,7 +136,69 @@
 
                 </form>
 
-            </div>
+            </section>
+
+            <section class="main__page main__page-active">
+
+                <div class="game-board" data-id="board">
+
+                    <div class="game-board__cell">
+                        <button class="cell-button" data-cell="A1">X</button>
+                    </div>
+
+                    <div class="game-board__cell">
+                        <button class="cell-button" data-cell="A2"></button>
+                        <div class="game-board__winner-line" data-row-id="horizontal-top"></div>
+                    </div>
+
+                    <div class="game-board__cell">
+                        <button class="cell-button" data-cell="A3">O</button>
+                    </div>
+
+                    <div class="game-board__cell">
+                        <button class="cell-button" data-cell="B1"></button>
+                        <div class="game-board__winner-line vertical" data-row-id="vertical-left"></div>
+                    </div>
+
+                    <div class="game-board__cell">
+                        <button class="cell-button" data-cell="B2">O</button>
+                        <div class="game-board__winner-line" data-row-id="horizontal-center"></div>
+                        <div class="game-board__winner-line vertical" data-row-id="vertical-center"></div>
+                        <div class="game-board__winner-line diagonal" data-row-id="diagonal-left"></div>
+                        <div class="game-board__winner-line diagonal right" data-row-id="diagonal-right"></div>
+                    </div>
+
+                    <div class="game-board__cell">
+                        <button class="cell-button" data-cell="B3"></button>
+                        <div class="game-board__winner-line vertical" data-row-id="vertical-right"></div>
+                    </div>
+
+                    <div class="game-board__cell">
+                        <button class="cell-button" data-cell="C1"></button>
+                    </div>
+
+                    <div class="game-board__cell">
+                        <button class="cell-button" data-cell="C2"></button>
+                        <div class="game-board__winner-line" data-row-id="horizontal-bottom"></div>
+                    </div>
+
+                    <div class="game-board__cell">
+                        <button class="cell-button" data-cell="C3">X</button>
+                    </div>
+
+                </div>
+
+                <div class="game-actions">
+
+                    <button class="pushable">
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">Start</span>
+                    </button>
+
+                </div>
+
+            </section>
 
         </main>
 
