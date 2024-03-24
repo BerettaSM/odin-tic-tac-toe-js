@@ -97,7 +97,7 @@ h6 {
         var(--TERTIARY_SAT),
         var(--TERTIARY_LIGHT)
     );
-    --TEXT-WHITE: whitesmoke;
+    --TEXT_WHITE: whitesmoke;
 }
 
 body {
@@ -282,6 +282,10 @@ a:active::before {
     transition: background-color 350ms ease-in, filter 350ms ease-in;
 }
 
+.cell-button:disabled {
+    cursor: not-allowed;
+}
+
 .cell-button:not(:disabled):hover,
 .cell-button:not(:disabled):focus {
     background-color: hsl(
@@ -344,6 +348,10 @@ a:active::before {
     transition: filter 250ms;
 }
 
+.pushable:disabled {
+    cursor: not-allowed;
+}
+
 .pushable__shadow {
     position: absolute;
     top: 0;
@@ -354,6 +362,10 @@ a:active::before {
     background: var(--COLOR_PRIMARY_SHADOW);
     will-change: transform;
     transform: translateY(2px);
+}
+
+.pushable:disabled .pushable__shadow {
+    transform: translateY(0px);
 }
 
 .pushable__edge {
@@ -372,11 +384,15 @@ a:active::before {
     );
 }
 
+.pushable:disabled .pushable__edge {
+    background: var(--COLOR_PRIMARY_DARKER);
+}
+
 .pushable__label {
     display: block;
     position: relative;
     background-color: var(--COLOR_PRIMARY);
-    color: var(--TEXT-WHITE);
+    color: var(--TEXT_WHITE);
     border-radius: 12px;
     padding: 12px 42px;
     font-size: 1.25rem;
@@ -384,23 +400,29 @@ a:active::before {
     transform: translateY(-4px);
 }
 
-.pushable:hover {
+.pushable:disabled .pushable__label {
+    background-color: var(--COLOR_PRIMARY_DARKER);
+    color: var(--COLOR_PRIMARY_DARK);
+    transform: translateY(0px);
+}
+
+.pushable:not(:disabled):hover {
     filter: brightness(110%);
 }
 
-.pushable:hover .pushable__label {
+.pushable:not(:disabled):hover .pushable__label {
     transform: translateY(-6px);
 }
 
-.pushable:active .pushable__label {
+.pushable:not(:disabled):active .pushable__label {
     transform: translateY(-2px);
 }
 
-.pushable:hover .pushable__shadow {
+.pushable:not(:disabled):hover .pushable__shadow {
     transform: translateY(4px);
 }
 
-.pushable:active .pushable__shadow {
+.pushable:not(:disabled):active .pushable__shadow {
     transform: translateY(1px);
 }
 
@@ -451,7 +473,7 @@ a:active::before {
         background-size: 500% auto;
         animation: text-glow 1s ease-in-out infinite alternate;
         transform: translateX(-100%);
-        transition: transform 500ms cubic-bezier(.19,.91,.19,.91);
+        transition: transform 500ms cubic-bezier(0.19, 0.91, 0.19, 0.91);
     }
 
     .game-board__winner-line.visible::after {
@@ -463,7 +485,8 @@ a:active::before {
     }
 
     .pushable__label {
-        transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+        transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1),
+            background 600ms ease-in-out, color 600ms ease-in-out;
     }
 
     .pushable:hover .pushable__label {
