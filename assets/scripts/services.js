@@ -9,12 +9,20 @@ var GameService = (function hideInternals() {
         gameType: GameTypes.PLAYER_VS_PLAYER,
         P1Name: 'Player 1',
         P2Name: 'Player 2',
-        onGameOverCallback: function onGameOver(winner, winningRow) {
+        onGameOverCallback: function onGameOver(
+            winner,
+            winningRow,
+            winningCells
+        ) {
+            console.log('aquiiiiiii');
+            console.log(winner, winningRow, winningCells);
             if (!winner) {
                 console.log('Tie!');
             } else {
                 console.log(`${winner.name} won!`);
-                console.log(`Victory at ${winningRow}`);
+                console.log(
+                    `Victory at ${winningRow} ( Cells [${winningCells}] )`
+                );
             }
         },
         onBotStartThinkingCallback: function onBotStartThinking(name, symbol) {
@@ -99,13 +107,23 @@ var GameService = (function hideInternals() {
             }
 
             if (_game.isOver) {
-                var winner = getPlayer(_players, _game.winner);
+                let winner = getPlayer(_players, _game.winner);
 
                 if (winner) {
                     _scores[winner.symbol]++;
                 }
 
-                _config.onGameOverCallback(winner, _game.winningRow);
+                let winningCells = _game.winningRow
+                    ? TicTacToe.scoringRows[winningCells].map(
+                          TicTacToe.parseToBoardPosition
+                      )
+                    : null;
+
+                _config.onGameOverCallback(
+                    winner,
+                    _game.winningRow,
+                    winningCells
+                );
             }
         }
 

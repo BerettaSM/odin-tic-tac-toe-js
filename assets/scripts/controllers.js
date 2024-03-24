@@ -62,6 +62,8 @@ var ConsoleGameController = (function hideInternals() {
                 } catch (e) {
                     if (e instanceof Error && e.name === 'TicTacToeError') {
                         window.alert(e.message);
+                    } else {
+                        throw e;
                     }
                 }
             }
