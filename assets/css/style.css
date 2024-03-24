@@ -105,7 +105,6 @@ a {
     color: var(--COLOR_TERTIARY);
     text-decoration: none;
     overflow: hidden;
-    transition: color 400ms ease-in;
 }
 
 a::before {
@@ -116,15 +115,12 @@ a::before {
     width: 100%;
     background-color: var(--COLOR_SECONDARY);
     transform: translateY(94%);
-    transition: transform 400ms ease-in, background-color 400ms ease-in,
-        opacity 400ms ease-in, filter 400ms ease-in;
     z-index: -1;
 }
 
 a:hover,
 a:active {
     color: var(--COLOR_PRIMARY);
-    transition: color 200ms ease-out;
 }
 
 a:hover::before,
@@ -132,8 +128,6 @@ a:active::before {
     background-color: var(--COLOR_TERTIARY);
     transform: translateY(0%);
     filter: brightness(1.35);
-    transition: transform 200ms ease-out, background-color 200ms ease-out,
-        opacity 200ms ease-out, filter 200ms ease-out;
 }
 
 .app {
@@ -225,7 +219,6 @@ a:active::before {
 .form__control label .letter {
     display: inline-block;
     transform: translateY(43px);
-    transition: transform 150ms calc(var(--i) * 50ms) ease;
 }
 
 .form__control input:focus + label .letter,
@@ -268,7 +261,6 @@ a:active::before {
     background: var(--COLOR_PRIMARY_SHADOW);
     will-change: transform;
     transform: translateY(2px);
-    transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
 }
 
 .pushable__edge {
@@ -297,7 +289,6 @@ a:active::before {
     font-size: 1.25rem;
     will-change: transform;
     transform: translateY(-4px);
-    transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
 }
 
 .pushable:hover {
@@ -306,22 +297,18 @@ a:active::before {
 
 .pushable:hover .pushable__label {
     transform: translateY(-6px);
-    transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
 }
 
 .pushable:active .pushable__label {
     transform: translateY(-2px);
-    transition: transform 34ms;
 }
 
 .pushable:hover .pushable__shadow {
     transform: translateY(4px);
-    transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
 }
 
 .pushable:active .pushable__shadow {
     transform: translateY(1px);
-    transition: transform 34ms;
 }
 
 .pushable:focus:not(:focus-visible) {
@@ -334,32 +321,84 @@ a:active::before {
     margin: auto;
 }
 
-.app .text-glow {
-    background: linear-gradient(
-        to left,
-        var(--COLOR_TERTIARY),
-        var(--COLOR_PRIMARY),
-        var(--COLOR_SECONDARY),
-        var(--COLOR_PRIMARY),
-        var(--COLOR_TERTIARY)
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-size: 500% auto;
-    animation: text-glow 1s ease-in-out infinite alternate;
-}
+@media (prefers-reduced-motion: no-preference) {
+    a {
+        transition: color 400ms ease-in;
+    }
 
-.text-shadow {
-    animation: breath 2s infinite ease-out alternate;
+    a::before {
+        transition: transform 400ms ease-in, background-color 400ms ease-in,
+            opacity 400ms ease-in, filter 400ms ease-in;
+    }
+
+    a:hover,
+    a:active {
+        transition: color 200ms ease-out;
+    }
+
+    a:hover::before,
+    a:active::before {
+        transition: transform 200ms ease-out, background-color 200ms ease-out,
+            opacity 200ms ease-out, filter 200ms ease-out;
+    }
+
+    .form__control label .letter {
+        transition: transform 150ms calc(var(--i) * 50ms) ease;
+    }
+
+    .pushable__shadow {
+        transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+    }
+
+    .pushable__label {
+        transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+    }
+
+    .pushable:hover .pushable__label {
+        transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+    }
+    
+    .pushable:active .pushable__label {
+        transition: transform 34ms;
+    }
+
+    .pushable:hover .pushable__shadow {
+        transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+    }
+
+    .pushable:active .pushable__shadow {
+        transition: transform 34ms;
+    }
+
+    .app .text-glow {
+        background: linear-gradient(
+            to left,
+            var(--COLOR_TERTIARY),
+            var(--COLOR_PRIMARY),
+            var(--COLOR_SECONDARY),
+            var(--COLOR_PRIMARY),
+            var(--COLOR_TERTIARY)
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 500% auto;
+        animation: text-glow 1s ease-in-out infinite alternate;
+    }
+
+    .text-shadow {
+        animation: breath 2s infinite ease-out alternate;
+    }
 }
 
 @keyframes breath {
     from {
-        filter: drop-shadow(1px 1px 2px currentColor) drop-shadow(-1px -1px 2px currentColor)
+        filter: drop-shadow(1px 1px 2px currentColor)
+            drop-shadow(-1px -1px 2px currentColor);
     }
     to {
-        filter: drop-shadow(2px 2px 6px currentColor) drop-shadow(-2px -2px 6px currentColor);
+        filter: drop-shadow(2px 2px 6px currentColor)
+            drop-shadow(-2px -2px 6px currentColor);
     }
 }
 
