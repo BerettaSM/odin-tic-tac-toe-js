@@ -43,15 +43,14 @@ var GameService = (function hideInternals() {
         Object.defineProperties(instance, {
             board: {
                 get() {
-                    // TODO: Make a mapping function
-                    //       to ease access to board cells
-                    //       from outside.
-                    return _game.board;
+                    return mapBoardToCells(_game.board);
                 },
             },
             currentPlayer: {
                 get() {
-                    return Utils.clone(getPlayer(_players, _game.currentSymbol));
+                    return Utils.clone(
+                        getPlayer(_players, _game.currentSymbol)
+                    );
                 },
             },
             isGameOver: {
@@ -124,22 +123,22 @@ var GameService = (function hideInternals() {
 
         async function handleArtificialBotPlay(bot) {
             let botPlay = bot.play([..._game.board]);
-    
-            if(_config.botArtificialPlayDelayRange) {
+
+            if (_config.botArtificialPlayDelayRange) {
                 let [min, max] = _config.botArtificialPlayDelayRange;
                 let timeout = Utils.getRandomNumber(min, max);
-    
-                if(_config.onBotStartThinkingCallback) {
+
+                if (_config.onBotStartThinkingCallback) {
                     _config.onBotStartThinkingCallback(bot.name, bot.symbol);
                 }
-    
+
                 await Utils.sleep(timeout);
-                
-                if(_config.onBotDoneThinkingCallback) {
+
+                if (_config.onBotDoneThinkingCallback) {
                     _config.onBotDoneThinkingCallback(bot.name, bot.symbol);
                 }
             }
-    
+
             _game.placeAtPosition(botPlay);
         }
     }
@@ -179,5 +178,14 @@ var GameService = (function hideInternals() {
 
     function getPlayer(players, symbol) {
         return players.find((p) => p.symbol === symbol);
+    }
+
+    function mapBoardToCells(board) {
+        var { parseToBoardPosition } = TicTacToe;
+
+        return board.map((value, index) => ({
+            cell: parseToBoardPosition(index),
+            value,
+        }));
     }
 })();

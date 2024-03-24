@@ -94,7 +94,7 @@ var ConsoleGameController = (function hideInternals() {
         for (let i = 0; i < 3; i++) {
             str += String.fromCharCode(i + 65);
             str += ' | ';
-            str += gameService.board.slice(i * 3, i * 3 + 3).join(' | ');
+            str += gameService.board.slice(i * 3, i * 3 + 3).map(entry => entry.value).join(' | ');
             str += ' |\n';
             str += '  -------------\n';
         }
