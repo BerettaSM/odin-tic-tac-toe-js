@@ -36,7 +36,10 @@ var ConsoleGameController = (function hideInternals() {
         var config = collectConfig();
 
         // init the game service with configs
-        gameService.init({ ...config, botArtificialPlayDelayRange: [1000, 3500] });
+        gameService.init({
+            ...config,
+            botArtificialPlayDelayRange: [1000, 3500],
+        });
 
         var replay;
 
@@ -96,7 +99,10 @@ var ConsoleGameController = (function hideInternals() {
         for (let i = 0; i < 3; i++) {
             str += String.fromCharCode(i + 65);
             str += ' | ';
-            str += gameService.board.slice(i * 3, i * 3 + 3).map(entry => entry.value).join(' | ');
+            str += gameService.board
+                .slice(i * 3, i * 3 + 3)
+                .map((entry) => entry.value)
+                .join(' | ');
             str += ' |\n';
             str += '  -------------\n';
         }
@@ -210,5 +216,79 @@ var ConsoleGameController = (function hideInternals() {
         }
 
         return string;
+    }
+})();
+
+// This controller is responsible only for the game section,
+// on the last page. Page navigation will be handled elsewhere.
+var DOMGameController = (function hideInternals() {
+    return Controller;
+
+    // =====================================
+
+    function Controller(gameService) {
+        // var _config = null;
+        var _resetButtonEle = null;
+        var _gameBoardEle = null;
+        var listeners = []; // for posterior cleanup. -> { target: element, fn: listener }
+
+        var instance = {
+            init,
+            cleanUp,
+        };
+
+        return Utils.createInitProxy(instance);
+
+        // =====================================
+
+        // var baseConfig = {
+        //     botDifficulty: BotDifficulty.EASY,
+        //     botArtificialPlayDelayRange: [1500, 3500] || null,
+        //     gameType: GameTypes.PLAYER_VS_PLAYER,
+        //     P1Name: null,
+        //     P2Name: null,
+        //     onGameOverCallback: null,
+        //     onBotStartThinkingCallback: null,
+        //     onBotDoneThinkingCallback: null,
+        //     domElements: {
+        //         resetButton: '...',
+        //         boardCells: {
+        //             A1: element,
+        //         },
+        //     },
+        // };
+
+        function init(config) {
+            var {
+                domSelectors: { resetButton, board },
+                ...serviceConfig
+            } = config;
+            gameService.init(serviceConfig);
+
+            _resetButtonEle = document.querySelector(resetButton);
+            _gameBoardEle = document.querySelector(board);
+
+            _gameBoardEle.addEventListener('click', handleCellClick);
+        }
+
+        // This handler is added to the overall board,
+        // and the actual button is found through event bubbling.
+        async function handleCellClick({ target }) {
+            if(!target.hasAttribute('data-cell')) {
+                // Click occurred within board, but not actually on a button.
+                return;
+            }
+            var cellID = target.dataset.cell;
+
+            await gameService.playTurn(cellID);
+        }
+
+        function handleResetClick(event) {
+
+        }
+
+        function cleanUp() {
+            _gameBoardEle.removeEventListener('click', handleCellClick);
+        }
     }
 })();

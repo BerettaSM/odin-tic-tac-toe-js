@@ -28,13 +28,13 @@
 
             <section class="main__page">
 
-                <button class="pushable">
+                <button class="pushable" data-id="play-dom-match">
                     <span class="pushable__shadow"></span>
                     <span class="pushable__edge"></span>
                     <span class="pushable__label">Play a match</span>
                 </button>
 
-                <button class="pushable">
+                <button class="pushable" data-id="play-console-match">
                     <span class="pushable__shadow"></span>
                     <span class="pushable__edge"></span>
                     <span class="pushable__label">Play a match (browser console)</span>
@@ -46,21 +46,21 @@
 
                 <h2 class="text-glow">Choose a game type</h2>
 
-                <menu class="types-menu">
+                <menu class="types-menu" data-id="game-type">
 
-                    <button class="pushable">
+                    <button class="pushable" data-id="PLAYER_VS_PLAYER">
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Player VS Player</span>
                     </button>
 
-                    <button class="pushable">
+                    <button class="pushable" data-id="PLAYER_VS_BOT">
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Player VS Bot</span>
                     </button>
 
-                    <button class="pushable">
+                    <button class="pushable" data-id="BOT_VS_BOT">
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Bot VS Bot (Spectate)</span>
@@ -74,21 +74,21 @@
 
                 <h2 class="text-glow">Choose a bot difficulty</h2>
 
-                <menu class="types-menu">
+                <menu class="types-menu" data-id="bot-difficulty">
 
-                    <button class="pushable">
+                    <button class="pushable" data-id="EASY">
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Easy</span>
                     </button>
 
-                    <button class="pushable">
+                    <button class="pushable" data-id="MEDIUM">
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Medium</span>
                     </button>
 
-                    <button class="pushable">
+                    <button class="pushable" data-id="HARD">
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Hard</span>
@@ -106,26 +106,12 @@
 
                     <div class="form__control">
                         <input type="text" name="p1" id="p1" placeholder="">
-                        <label for="p1">
-                            <span style="--i: 0;" class="letter">P</span><span style="--i: 1;"
-                                class="letter">l</span><span style="--i: 2;" class="letter">a</span><span
-                                style="--i: 3;" class="letter">y</span><span style="--i: 4;"
-                                class="letter">e</span><span style="--i: 5;" class="letter">r</span> <span
-                                style="--i: 6;" class="letter">(</span> <span style="--i: 7;" class="letter">X</span>
-                            <span style="--i: 8;" class="letter">)</span>
-                        </label>
+                        <label for="p1">Player&nbsp;(&nbsp;X&nbsp;)</label>
                     </div>
 
                     <div class="form__control">
-                        <input type="text" name="p1" id="p1" placeholder="">
-                        <label for="p1">
-                            <span style="--i: 0;" class="letter">P</span><span style="--i: 1;"
-                                class="letter">l</span><span style="--i: 2;" class="letter">a</span><span
-                                style="--i: 3;" class="letter">y</span><span style="--i: 4;"
-                                class="letter">e</span><span style="--i: 5;" class="letter">r</span> <span
-                                style="--i: 6;" class="letter">(</span> <span style="--i: 7;" class="letter">O</span>
-                            <span style="--i: 8;" class="letter">)</span>
-                        </label>
+                        <input type="text" name="p2" id="p2" placeholder="">
+                        <label for="p2">Player&nbsp;(&nbsp;O&nbsp;)</label>
                     </div>
 
                     <button class="pushable">
@@ -143,7 +129,7 @@
                 <div class="game-board" data-id="board">
 
                     <div class="game-board__cell">
-                        <button class="cell-button" data-cell="A1" disabled>X</button>
+                        <button class="cell-button" data-cell="A1">X</button>
                     </div>
 
                     <div class="game-board__cell">
@@ -190,10 +176,16 @@
 
                 <div class="game-actions">
 
-                    <button class="pushable">
+                    <button class="pushable" data-id="start-action">
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Start</span>
+                    </button>
+
+                    <button class="pushable" disabled>
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">Rematch</span>
                     </button>
 
                 </div>

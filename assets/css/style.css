@@ -212,8 +212,12 @@ a:active::before {
     padding-block-start: 32px;
 }
 
-.main__page .form .form__control:last-of-type {
-    padding-block-end: 40px;
+.form__control.hidden {
+    display: none;
+}
+
+.main__page .form .pushable {
+    margin-block-start: 40px;
 }
 
 .form__control label {
