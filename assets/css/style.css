@@ -177,6 +177,7 @@ a:active::before {
     width: 100%;
     opacity: 0;
     pointer-events: none;
+    transition: opacity 250ms ease-in-out;
 }
 
 .main__page:last-of-type {
@@ -187,6 +188,7 @@ a:active::before {
 .main__page-active {
     opacity: 1;
     pointer-events: all;
+    transition-delay: 350ms;
 }
 
 .main__page h2 {
