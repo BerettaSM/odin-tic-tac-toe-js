@@ -3,7 +3,7 @@
 var App = (function hideInternals() {
     const ACTIVE_PAGE_CLASS = 'main__page-active';
 
-    var { BotDifficulty, GameTypes } = TicTacToe;
+    var { GameTypes } = TicTacToe;
 
     var state = {
         currentPage: 0,
@@ -38,7 +38,9 @@ var App = (function hideInternals() {
     var form = main.querySelector('form.form');
 
     // Board page
+    var board = main.querySelector('[data-id="board"]');
     var startButton = main.querySelector('button[data-id="start-action"]');
+    var resetButton = main.querySelector('button[data-id="reset-action"]');
 
     var publicAPI = {
         init,
@@ -171,6 +173,22 @@ var App = (function hideInternals() {
             state.P2Name = P2Name;
 
             changeToPage(4);
+        });
+
+        startButton.addEventListener('click', function startGame(event) {
+            startButton.disabled = true;
+
+            var gameService = new GameService();
+            var gameController = new DOMGameController(gameService);
+
+            gameController.init({
+                ...state,
+                botArtificialPlayDelayRange: [1500, 3500],
+                domElements: {
+                    resetButton,
+                    board,
+                },
+            });
         });
     }
 

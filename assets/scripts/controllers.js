@@ -99,6 +99,7 @@ var ConsoleGameController = (function hideInternals() {
         for (let i = 0; i < 3; i++) {
             str += String.fromCharCode(i + 65);
             str += ' | ';
+            // TODO: Fix how the board is iterated.
             str += gameService.board
                 .slice(i * 3, i * 3 + 3)
                 .map((entry) => entry.value)
@@ -230,7 +231,6 @@ var DOMGameController = (function hideInternals() {
         // var _config = null;
         var _resetButtonEle = null;
         var _gameBoardEle = null;
-        var listeners = []; // for posterior cleanup. -> { target: element, fn: listener }
 
         var instance = {
             init,
@@ -258,37 +258,129 @@ var DOMGameController = (function hideInternals() {
         //     },
         // };
 
-        function init(config) {
+        async function init(config) {
             var {
-                domSelectors: { resetButton, board },
+                domElements: { resetButton, board },
                 ...serviceConfig
             } = config;
-            gameService.init(serviceConfig);
+            gameService.init({ ...serviceConfig, onGameOverCallback });
 
-            _resetButtonEle = document.querySelector(resetButton);
-            _gameBoardEle = document.querySelector(board);
+            _resetButtonEle = resetButton;
+            _resetButtonEle.addEventListener('click', handleResetClick);
 
+            _gameBoardEle = board;
             _gameBoardEle.addEventListener('click', handleCellClick);
+
+            updateUI();
+
+            await checkForBot();
         }
 
         // This handler is added to the overall board,
         // and the actual button is found through event bubbling.
         async function handleCellClick({ target }) {
-            if(!target.hasAttribute('data-cell')) {
+            if (!target.hasAttribute('data-cell')) {
                 // Click occurred within board, but not actually on a button.
                 return;
             }
             var cellID = target.dataset.cell;
 
             await gameService.playTurn(cellID);
+
+            updateUI();
+
+            await checkForBot();
         }
 
-        function handleResetClick(event) {
+        async function handleResetClick() {
+            _resetButtonEle.disabled = true;
+            gameService.rematch();
+            updateUI();
+            hideWinningRows();
+            await checkForBot();
+        }
 
+        // function adjustBoardCellButtons() {
+        //     var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
+        //     // If game is over or next player is a bot, disable all cell buttons
+        //     if (gameService.isGameOver || 'play' in gameService.currentPlayer) {
+        //         cellButtons.forEach((button) => (button.disabled = true));
+        //     }
+        //     // else enable only the empty cell buttons
+        //     else {
+        //         var boardState = gameService.board;
+
+        //         cellButtons.forEach((button) => {
+        //             var cellID = button.dataset.cell;
+
+        //             var isEmpty = boardState[cellID] === ' ';
+        //             button.disabled = !isEmpty;
+        //         });
+        //     }
+        // }
+
+        function updateUI() {
+            var boardState = gameService.board;
+            var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
+
+            var shouldDisableAllButtons = gameService.isGameOver || 'play' in gameService.currentPlayer;
+
+            cellButtons.forEach(function updateCell(button) {
+                var cellID = button.dataset.cell;
+                button.textContent = boardState[cellID];
+                var isEmpty = boardState[cellID] === ' ';
+                button.disabled = shouldDisableAllButtons || !isEmpty;
+            });
+        }
+
+        async function checkForBot() {
+            if (
+                !gameService.isGameOver &&
+                'play' in gameService.currentPlayer
+            ) {
+                await gameService.playTurn();
+                updateUI();
+                await checkForBot();
+            }
+        }
+
+        function onGameOverCallback(winner, winningRow, winningCells) {
+            // mark the winning row, if any
+            if (winningRow) {
+                var row = _gameBoardEle.querySelector(
+                    `[data-row-id="${winningRow}"]`
+                );
+                row.classList.add('visible');
+            }
+
+            // enabled rematch button
+            _resetButtonEle.disabled = false;
+
+            // update scores and info on ui
+        }
+
+        function hideWinningRows() {
+            var rows = _gameBoardEle.querySelectorAll(
+                '.game-board__winner-line'
+            );
+
+            rows.forEach(function hideRow(row) {
+                row.classList.remove('visible');
+            });
         }
 
         function cleanUp() {
+            _resetButtonEle.removeEventListener('click', handleResetClick);
             _gameBoardEle.removeEventListener('click', handleCellClick);
+
+            var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
+
+            cellButtons.forEach(function disableButton(button) {
+                button.disabled = true;
+                button.textContent = '';
+            });
+
+            hideWinningRows();
         }
     }
 })();
