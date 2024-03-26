@@ -26,15 +26,15 @@
 
         <main class="main">
 
-            <section class="main__page main__page-active">
+            <section class="main__page main__page-active" aria-hidden="false">
 
-                <button class="pushable" data-id="play-dom-match">
+                <button class="pushable" data-id="play-dom-match" data-default-enabled>
                     <span class="pushable__shadow"></span>
                     <span class="pushable__edge"></span>
                     <span class="pushable__label">Play a match</span>
                 </button>
 
-                <button class="pushable" data-id="play-console-match">
+                <button class="pushable" data-id="play-console-match" data-default-enabled>
                     <span class="pushable__shadow"></span>
                     <span class="pushable__edge"></span>
                     <span class="pushable__label">Play a match (browser console)</span>
@@ -42,25 +42,25 @@
 
             </section>
 
-            <section class="main__page">
+            <section class="main__page" aria-hidden="true">
 
                 <h2 class="text-glow">Choose a game type</h2>
 
                 <menu class="types-menu" data-id="game-type">
 
-                    <button class="pushable" data-id="PLAYER_VS_PLAYER">
+                    <button class="pushable" data-id="PLAYER_VS_PLAYER" disabled data-default-enabled>
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Player VS Player</span>
                     </button>
 
-                    <button class="pushable" data-id="PLAYER_VS_BOT">
+                    <button class="pushable" data-id="PLAYER_VS_BOT" disabled data-default-enabled>
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Player VS Bot</span>
                     </button>
 
-                    <button class="pushable" data-id="BOT_VS_BOT">
+                    <button class="pushable" data-id="BOT_VS_BOT" disabled data-default-enabled>
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Bot VS Bot (Spectate)</span>
@@ -70,25 +70,25 @@
 
             </section>
 
-            <section class="main__page">
+            <section class="main__page" aria-hidden="true">
 
                 <h2 class="text-glow">Choose a bot difficulty</h2>
 
                 <menu class="types-menu" data-id="bot-difficulty">
 
-                    <button class="pushable" data-id="EASY">
+                    <button class="pushable" data-id="EASY" disabled data-default-enabled>
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Easy</span>
                     </button>
 
-                    <button class="pushable" data-id="MEDIUM">
+                    <button class="pushable" data-id="MEDIUM" disabled data-default-enabled>
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Medium</span>
                     </button>
 
-                    <button class="pushable" data-id="HARD">
+                    <button class="pushable" data-id="HARD" disabled data-default-enabled>
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Hard</span>
@@ -98,23 +98,23 @@
 
             </section>
 
-            <section class="main__page">
+            <section class="main__page" aria-hidden="true">
 
                 <h2 class="text-glow">Enter name</h2>
 
                 <form class="form" autocomplete="off">
 
                     <div class="form__control">
-                        <input type="text" name="p1" id="p1" placeholder="">
+                        <input type="text" name="p1" id="p1" placeholder="" disabled data-default-enabled>
                         <label for="p1">Player&nbsp;(&nbsp;X&nbsp;)</label>
                     </div>
 
                     <div class="form__control">
-                        <input type="text" name="p2" id="p2" placeholder="">
+                        <input type="text" name="p2" id="p2" placeholder="" disabled data-default-enabled>
                         <label for="p2">Player&nbsp;(&nbsp;O&nbsp;)</label>
                     </div>
 
-                    <button class="pushable">
+                    <button class="pushable" disabled data-default-enabled>
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Play</span>
@@ -124,12 +124,12 @@
 
             </section>
 
-            <section class="main__page">
+            <section class="main__page" aria-hidden="true">
 
                 <div class="game-board" data-id="board">
 
                     <div class="game-board__cell">
-                        <button class="cell-button" data-cell="A1">X</button>
+                        <button class="cell-button" data-cell="A1" disabled></button>
                     </div>
 
                     <div class="game-board__cell">
@@ -138,7 +138,7 @@
                     </div>
 
                     <div class="game-board__cell">
-                        <button class="cell-button" data-cell="A3" disabled>O</button>
+                        <button class="cell-button" data-cell="A3" disabled></button>
                     </div>
 
                     <div class="game-board__cell">
@@ -147,7 +147,7 @@
                     </div>
 
                     <div class="game-board__cell">
-                        <button class="cell-button" data-cell="B2" disabled>O</button>
+                        <button class="cell-button" data-cell="B2" disabled></button>
                         <div class="game-board__winner-line" data-row-id="horizontal-center"></div>
                         <div class="game-board__winner-line vertical" data-row-id="vertical-center"></div>
                         <div class="game-board__winner-line diagonal" data-row-id="diagonal-left"></div>
@@ -169,14 +169,14 @@
                     </div>
 
                     <div class="game-board__cell">
-                        <button class="cell-button" data-cell="C3" disabled>X</button>
+                        <button class="cell-button" data-cell="C3" disabled></button>
                     </div>
 
                 </div>
 
                 <div class="game-actions">
 
-                    <button class="pushable" data-id="start-action">
+                    <button class="pushable" data-id="start-action" data-default-enabled disabled>
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Start</span>

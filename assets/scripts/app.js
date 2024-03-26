@@ -45,7 +45,6 @@ var App = (function hideInternals() {
     // =====================================
 
     function init() {
-        changeToPage(0);
         setupListeners();
         populateFormLabels();
     }
@@ -57,12 +56,29 @@ var App = (function hideInternals() {
             throw new Error(`Page number ${pageNumber} does not exist.`);
         }
 
-        pages.forEach(function removeActiveClass(page) {
-            page.classList.remove(ACTIVE_PAGE_CLASS);
+        var prevPage = pages[state.currentPage];
+        prevPage.classList.remove(ACTIVE_PAGE_CLASS);
+
+        // add aria-hidden=true
+        prevPage.setAttribute('aria-hidden', true);
+
+        // disable buttons and inputs to prevent focus
+        prevPage.querySelectorAll('input, button').forEach((element) => {
+            element.disabled = true;
         });
 
-        var page = pages[pageNumber];
-        page.classList.add(ACTIVE_PAGE_CLASS);
+        var curPage = pages[pageNumber];
+        curPage.classList.add(ACTIVE_PAGE_CLASS);
+
+        curPage.setAttribute('aria-hidden', false);
+
+        curPage
+            .querySelectorAll('[data-default-enabled]')
+            .forEach((element) => {
+                element.disabled = false;
+            });
+
+        state.currentPage = pageNumber;
     }
 
     function populateFormLabels() {
@@ -103,7 +119,7 @@ var App = (function hideInternals() {
             var gameType = button.dataset.id;
             state.gameType = gameType;
 
-            adjustNamesForm(gameType);
+            adjustNamesForm();
 
             if (gameType !== GameTypes.PLAYER_VS_PLAYER) {
                 changeToPage(2);
@@ -146,12 +162,15 @@ var App = (function hideInternals() {
         });
     }
 
-    function adjustNamesForm(gameType) {
-        var p2FormControl = form.querySelector('input#p2').parentElement;
+    function adjustNamesForm() {
+        var p2NameInput = form.querySelector('input#p2');
+        var p2FormControl = p2NameInput.parentElement;
 
-        if (gameType === GameTypes.PLAYER_VS_PLAYER) {
+        if (state.gameType === GameTypes.PLAYER_VS_PLAYER) {
+            p2NameInput.setAttribute('data-default-enabled', '');
             p2FormControl.classList.remove('hidden');
         } else {
+            p2NameInput.removeAttribute('data-default-enabled');
             p2FormControl.classList.add('hidden');
         }
     }
