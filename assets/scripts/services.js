@@ -112,7 +112,7 @@ var GameService = (function hideInternals() {
                 }
 
                 let winningCells = _game.winningRow
-                    ? TicTacToe.scoringRows[winningCells].map(
+                    ? TicTacToe.scoringRows[_game.winningRow].map(
                           TicTacToe.parseToBoardPosition
                       )
                     : null;
@@ -199,9 +199,9 @@ var GameService = (function hideInternals() {
     function mapBoardToCells(board) {
         var { parseToBoardPosition } = TicTacToe;
 
-        return board.map((value, index) => ({
-            cell: parseToBoardPosition(index),
-            value,
-        }));
+        return board.reduce((state, value, index) => {
+            state[parseToBoardPosition(index)] = value;
+            return state;
+        }, {});
     }
 })();
