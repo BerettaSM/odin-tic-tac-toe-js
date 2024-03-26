@@ -16,6 +16,10 @@ var App = (function hideInternals() {
     var main = document.querySelector('main.main');
     var pages = main.querySelectorAll('.main__page');
 
+    for (let i = 0; i < pages.length; i++) {
+        pages[i].style.setProperty('--i', i);
+    }
+
     // Main page
     var playDomMatchButton = main.querySelector('[data-id="play-dom-match"]');
     var playConsoleMatchButton = main.querySelector(
@@ -59,10 +63,10 @@ var App = (function hideInternals() {
         var prevPage = pages[state.currentPage];
         prevPage.classList.remove(ACTIVE_PAGE_CLASS);
 
-        // add aria-hidden=true
+        // Make the previous page invisible to screen readers
         prevPage.setAttribute('aria-hidden', true);
 
-        // disable buttons and inputs to prevent focus
+        // disable buttons and inputs to prevent focus.
         prevPage.querySelectorAll('input, button').forEach((element) => {
             element.disabled = true;
         });
@@ -70,14 +74,22 @@ var App = (function hideInternals() {
         var curPage = pages[pageNumber];
         curPage.classList.add(ACTIVE_PAGE_CLASS);
 
+        // Make the current page visible to screen readers
         curPage.setAttribute('aria-hidden', false);
 
+        // Enable all inputs and buttons that should be enabled.
         curPage
             .querySelectorAll('[data-default-enabled]')
             .forEach((element) => {
                 element.disabled = false;
             });
-
+        
+        // Change the css index variable that causes the slide-in transition.
+        pages.forEach((page, index) => {
+            var transformIndex = index - pageNumber;
+            page.style.setProperty('--i', transformIndex);
+        });
+        
         state.currentPage = pageNumber;
     }
 

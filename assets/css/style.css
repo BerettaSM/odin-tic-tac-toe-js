@@ -463,6 +463,19 @@ a:active::before {
             opacity 200ms ease-out, filter 200ms ease-out;
     }
 
+    .app .main {
+        overflow: hidden;
+    }
+
+    .main__page {
+        transform: translateX(calc(var(--i) * 100%));
+        transition: transform 500ms ease-out, opacity 700ms ease-in-out;
+    }
+
+    .main__page-active {
+        pointer-events: all;
+    }
+
     .form__control label .letter {
         transition: transform 150ms calc(var(--i) * 50ms) ease;
     }
