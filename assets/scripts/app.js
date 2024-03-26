@@ -157,4 +157,9 @@ var App = (function hideInternals() {
     }
 })();
 
+// =====================================
+var footerYearSpan = document.querySelector('span[data-id="footer-year"]');
+footerYearSpan.textContent = new Date().getFullYear();
+// =====================================
+
 App.init();

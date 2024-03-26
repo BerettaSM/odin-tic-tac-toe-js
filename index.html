@@ -26,7 +26,7 @@
 
         <main class="main">
 
-            <section class="main__page">
+            <section class="main__page main__page-active">
 
                 <button class="pushable" data-id="play-dom-match">
                     <span class="pushable__shadow"></span>
@@ -124,7 +124,7 @@
 
             </section>
 
-            <section class="main__page main__page-active">
+            <section class="main__page">
 
                 <div class="game-board" data-id="board">
 
@@ -196,9 +196,7 @@
 
         <footer>
             <p>
-                © <span>
-                    <script>document.write(new Date().getFullYear())</script><noscript>2024</noscript>.
-                </span>
+                © <span data-id="footer-year"></span>.
                 All rights reserved. Designed for
                 <a target="_blank" href="https://www.theodinproject.com/">TheOdinProject</a>,
                 by <a target="_blank" href="https://github.com/BerettaSM">Ramon Saviato</a>.
