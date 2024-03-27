@@ -5,6 +5,10 @@ var App = (function hideInternals() {
 
     var { GameTypes } = TicTacToe;
 
+    var events = Object.freeze({
+        GAME_START: 'game-start',
+    });
+
     var state = {
         currentPage: 0,
         gameType: null,
@@ -41,6 +45,7 @@ var App = (function hideInternals() {
     var board = main.querySelector('[data-id="board"]');
     var startButton = main.querySelector('button[data-id="start-action"]');
     var resetButton = main.querySelector('button[data-id="reset-action"]');
+    var returnButton = main.querySelector('button[data-id="return-action"]');
 
     var publicAPI = {
         init,
@@ -191,11 +196,13 @@ var App = (function hideInternals() {
             changeToPage(4);
         });
 
+        var gameController;
+
         startButton.addEventListener('click', function startGame(event) {
-            startButton.disabled = true;
+            window.dispatchEvent(new CustomEvent(GameEvents.GAME_START));
 
             var gameService = new GameService();
-            var gameController = new DOMGameController(gameService);
+            gameController = new DOMGameController(gameService);
 
             gameController.init({
                 ...state,
@@ -205,6 +212,24 @@ var App = (function hideInternals() {
                     board,
                 },
             });
+
+            
+        });
+
+        returnButton.addEventListener('click', function returnToMainMenu() {
+            startButton.disabled = false;
+            gameController?.cleanUp();
+            changeToPage(0);
+        });
+
+        window.addEventListener(GameEvents.GAME_START, function onGameStart() {
+            startButton.disabled = true;
+            returnButton.disabled = true;
+        });
+
+        window.addEventListener(GameEvents.GAME_OVER, function enableMainMenuButton() {
+            returnButton.disabled = false;
+            resetButton.disabled = false;
         });
     }
 

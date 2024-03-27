@@ -230,6 +230,7 @@ var DOMGameController = (function hideInternals() {
     function Controller(gameService) {
         var _resetButtonEle = null;
         var _gameBoardEle = null;
+        var _cancelled = false;
 
         var instance = {
             init,
@@ -257,9 +258,9 @@ var DOMGameController = (function hideInternals() {
             _gameBoardEle = board;
             _gameBoardEle.addEventListener('click', handleCellClick);
 
-            window.addEventListener(gameService.events.GAME_OVER, onGameOver);
-            window.addEventListener(gameService.events.BOT_DELAY_START, onBotDelayStart);
-            window.addEventListener(gameService.events.BOT_DELAY_END, onBotDelayEnd);
+            window.addEventListener(GameEvents.GAME_OVER, onGameOver);
+            window.addEventListener(GameEvents.BOT_DELAY_START, onBotDelayStart);
+            window.addEventListener(GameEvents.BOT_DELAY_END, onBotDelayEnd);
 
             updateUI();
 
@@ -274,11 +275,8 @@ var DOMGameController = (function hideInternals() {
                 return;
             }
             var cellID = target.dataset.cell;
-
             await gameService.playTurn(cellID);
-
             updateUI();
-
             await checkForBot();
         }
 
@@ -327,12 +325,14 @@ var DOMGameController = (function hideInternals() {
         }
 
         function cleanUp() {
+            _cancelled = true;
+
             _resetButtonEle.removeEventListener('click', handleResetClick);
             _gameBoardEle.removeEventListener('click', handleCellClick);
 
-            window.removeEventListener(gameService.events.GAME_OVER, onGameOver);
-            window.removeEventListener(gameService.events.BOT_DELAY_START, onBotDelayStart);
-            window.removeEventListener(gameService.events.BOT_DELAY_END, onBotDelayEnd);
+            window.removeEventListener(GameEvents.GAME_OVER, onGameOver);
+            window.removeEventListener(GameEvents.BOT_DELAY_START, onBotDelayStart);
+            window.removeEventListener(GameEvents.BOT_DELAY_END, onBotDelayEnd);
 
             var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
 

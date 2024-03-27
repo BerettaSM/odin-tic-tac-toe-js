@@ -3,12 +3,6 @@
 var GameService = (function hideInternals() {
     var { BotDifficulty, GameTypes } = TicTacToe;
 
-    var events = Object.freeze({
-        GAME_OVER: 'game-over',
-        BOT_DELAY_START: 'bot-delay-start',
-        BOT_DELAY_END: 'bot-delay-end',
-    });
-
     var baseConfig = {
         botDifficulty: BotDifficulty.EASY,
         botArtificialPlayDelayRange: null, // [ 1500, 3500 ] -> In ms, pick random value inside range.
@@ -32,7 +26,6 @@ var GameService = (function hideInternals() {
             playTurn,
             rematch,
             init,
-            events,
         };
 
         Object.defineProperties(instance, {
@@ -106,7 +99,7 @@ var GameService = (function hideInternals() {
                       )
                     : null;
 
-                dispatchEvent(events.GAME_OVER, {
+                dispatchEvent(GameEvents.GAME_OVER, {
                     winner,
                     winningRow: _game.winningRow,
                     winningCells,
@@ -115,6 +108,7 @@ var GameService = (function hideInternals() {
         }
 
         function rematch() {
+            dispatchEvent(GameEvents.GAME_START);
             _game.reset();
         }
 
@@ -133,7 +127,7 @@ var GameService = (function hideInternals() {
                 let [min, max] = _config.botArtificialPlayDelayRange;
                 let timeout = Utils.getRandomNumber(min, max);
 
-                dispatchEvent(events.BOT_DELAY_START, {
+                dispatchEvent(GameEvents.BOT_DELAY_START, {
                     name: bot.name,
                     symbol: bot.symbol,
                     delay: timeout,
@@ -141,7 +135,7 @@ var GameService = (function hideInternals() {
 
                 await Utils.sleep(timeout);
 
-                dispatchEvent(events.BOT_DELAY_END, {
+                dispatchEvent(GameEvents.BOT_DELAY_END, {
                     name: bot.name,
                     symbol: bot.symbol,
                 });
@@ -150,7 +144,7 @@ var GameService = (function hideInternals() {
             _game.placeAtPosition(botPlay);
         }
 
-        function dispatchEvent(eventType, payload) {
+        function dispatchEvent(eventType, payload = {}) {
             _config.eventTarget.dispatchEvent(
                 new CustomEvent(eventType, {
                     detail: payload,
