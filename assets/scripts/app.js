@@ -51,6 +51,7 @@ var App = (function hideInternals() {
     // =====================================
 
     function init() {
+        changeToPage(0);
         setupListeners();
         populateFormLabels();
     }
@@ -85,13 +86,20 @@ var App = (function hideInternals() {
             .forEach((element) => {
                 element.disabled = false;
             });
-        
+
         // Change the css index variable that causes the slide-in transition.
         pages.forEach((page, index) => {
             var transformIndex = index - pageNumber;
             page.style.setProperty('--i', transformIndex);
         });
-        
+
+        var firstFocusable = curPage.querySelector('[data-default-focus]');
+        curPage.addEventListener('transitionend', () => {
+            if (firstFocusable) {
+                firstFocusable.focus();
+            }
+        });
+
         state.currentPage = pageNumber;
     }
 
