@@ -5,10 +5,6 @@ var App = (function hideInternals() {
 
     var { GameTypes } = TicTacToe;
 
-    var events = Object.freeze({
-        GAME_START: 'game-start',
-    });
-
     var state = {
         currentPage: 0,
         gameType: null,
@@ -100,18 +96,24 @@ var App = (function hideInternals() {
 
         var firstFocusable = curPage.querySelector('[data-default-focus]');
 
-        curPage.addEventListener('transitionend', function focusFirstFocusable(event) {
-            if(event.target !== event.currentTarget || !firstFocusable) {
-                // If the element is not firing on the page or there's no focusable,
-                // do nothing.
-                return;
+        curPage.addEventListener(
+            'transitionend',
+            function focusFirstFocusable(event) {
+                if (event.target !== event.currentTarget || !firstFocusable) {
+                    // If the element is not firing on the page or there's no focusable,
+                    // do nothing.
+                    return;
+                }
+
+                firstFocusable.focus();
+
+                // Remove event to prevent bubbling on multiple elements.
+                curPage.removeEventListener(
+                    'transitionend',
+                    focusFirstFocusable
+                );
             }
-
-            firstFocusable.focus();
-
-            // Remove event to prevent bubbling on multiple elements.
-            curPage.removeEventListener('transitionend', focusFirstFocusable);
-        });
+        );
 
         state.currentPage = pageNumber;
     }
@@ -198,7 +200,7 @@ var App = (function hideInternals() {
 
         var gameController;
 
-        startButton.addEventListener('click', function startGame(event) {
+        startButton.addEventListener('click', function startGame() {
             window.dispatchEvent(new CustomEvent(GameEvents.GAME_START));
 
             var gameService = new GameService();
@@ -212,25 +214,29 @@ var App = (function hideInternals() {
                     board,
                 },
             });
-
-            
         });
 
         returnButton.addEventListener('click', function returnToMainMenu() {
             startButton.disabled = false;
+            startButton.querySelector('.pushable__label').textContent = 'Start';
             gameController?.cleanUp();
             changeToPage(0);
         });
 
         window.addEventListener(GameEvents.GAME_START, function onGameStart() {
             startButton.disabled = true;
-            returnButton.disabled = true;
+            startButton.querySelector('.pushable__label').textContent =
+                'Playing...';
         });
 
-        window.addEventListener(GameEvents.GAME_OVER, function enableMainMenuButton() {
-            returnButton.disabled = false;
-            resetButton.disabled = false;
-        });
+        window.addEventListener(
+            GameEvents.GAME_OVER,
+            function enableMainMenuButton() {
+                resetButton.disabled = false;
+                startButton.querySelector('.pushable__label').textContent =
+                    'Game over';
+            }
+        );
     }
 
     function adjustNamesForm() {

@@ -76,15 +76,25 @@ var GameService = (function hideInternals() {
 
         // =====================================
 
-        async function playTurn(tentativePlay) {
+        async function playTurn(tentativePlay, signal) {
             var player = getPlayer(_players, _game.currentSymbol);
+
             if ('play' in player) {
                 // Player is actually a bot, wait for him to play.
-                await handleArtificialBotPlay(player);
-            } else {
-                // Just use the provided tentativePlay.
-                _game.placeAtPosition(tentativePlay);
+                tentativePlay = player.play([..._game.board]);
+
+                // Artificial wait, as to convey that the bot is thinking.
+                await handleArtificialBotDelay(player);
+
+                // If signal.cancelled was set to true,
+                // a cleanup function was called and we
+                // throw an error to stop bot from playing.
+                if(signal.cancelled) {
+                    throw new Error('cancelled');
+                }
             }
+
+            _game.placeAtPosition(tentativePlay);
 
             if (_game.isOver) {
                 let winner = getPlayer(_players, _game.winner);
@@ -120,28 +130,22 @@ var GameService = (function hideInternals() {
 
         // =======================================
 
-        async function handleArtificialBotPlay(bot) {
-            let botPlay = bot.play([..._game.board]);
+        async function handleArtificialBotDelay(bot) {
+            let [min, max] = _config.botArtificialPlayDelayRange;
+            let timeout = Utils.getRandomNumber(min, max);
 
-            if (_config.botArtificialPlayDelayRange) {
-                let [min, max] = _config.botArtificialPlayDelayRange;
-                let timeout = Utils.getRandomNumber(min, max);
+            dispatchEvent(GameEvents.BOT_DELAY_START, {
+                name: bot.name,
+                symbol: bot.symbol,
+                delay: timeout,
+            });
 
-                dispatchEvent(GameEvents.BOT_DELAY_START, {
-                    name: bot.name,
-                    symbol: bot.symbol,
-                    delay: timeout,
-                });
+            await Utils.sleep(timeout);
 
-                await Utils.sleep(timeout);
-
-                dispatchEvent(GameEvents.BOT_DELAY_END, {
-                    name: bot.name,
-                    symbol: bot.symbol,
-                });
-            }
-
-            _game.placeAtPosition(botPlay);
+            dispatchEvent(GameEvents.BOT_DELAY_END, {
+                name: bot.name,
+                symbol: bot.symbol,
+            });
         }
 
         function dispatchEvent(eventType, payload = {}) {

@@ -220,8 +220,6 @@ var ConsoleGameController = (function hideInternals() {
     }
 })();
 
-// This controller is responsible only for the game section,
-// on the last page. Page navigation will be handled elsewhere.
 var DOMGameController = (function hideInternals() {
     return Controller;
 
@@ -230,7 +228,10 @@ var DOMGameController = (function hideInternals() {
     function Controller(gameService) {
         var _resetButtonEle = null;
         var _gameBoardEle = null;
-        var _cancelled = false;
+
+        var _signal = {
+            cancelled: false,
+        };
 
         var instance = {
             init,
@@ -259,7 +260,10 @@ var DOMGameController = (function hideInternals() {
             _gameBoardEle.addEventListener('click', handleCellClick);
 
             window.addEventListener(GameEvents.GAME_OVER, onGameOver);
-            window.addEventListener(GameEvents.BOT_DELAY_START, onBotDelayStart);
+            window.addEventListener(
+                GameEvents.BOT_DELAY_START,
+                onBotDelayStart
+            );
             window.addEventListener(GameEvents.BOT_DELAY_END, onBotDelayEnd);
 
             updateUI();
@@ -308,9 +312,17 @@ var DOMGameController = (function hideInternals() {
                 !gameService.isGameOver &&
                 'play' in gameService.currentPlayer
             ) {
-                await gameService.playTurn();
-                updateUI();
-                await checkForBot();
+                try {
+                    await gameService.playTurn(null, _signal);
+                    updateUI();
+                    await checkForBot();
+                } catch (e) {
+                    if (e instanceof Error && e.message == 'cancelled') {
+                        console.log('Bot play was cancelled.');
+                    } else {
+                        throw e;
+                    }
+                }
             }
         }
 
@@ -325,13 +337,16 @@ var DOMGameController = (function hideInternals() {
         }
 
         function cleanUp() {
-            _cancelled = true;
+            _signal.cancelled = true;
 
             _resetButtonEle.removeEventListener('click', handleResetClick);
             _gameBoardEle.removeEventListener('click', handleCellClick);
 
             window.removeEventListener(GameEvents.GAME_OVER, onGameOver);
-            window.removeEventListener(GameEvents.BOT_DELAY_START, onBotDelayStart);
+            window.removeEventListener(
+                GameEvents.BOT_DELAY_START,
+                onBotDelayStart
+            );
             window.removeEventListener(GameEvents.BOT_DELAY_END, onBotDelayEnd);
 
             var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
@@ -362,11 +377,11 @@ var DOMGameController = (function hideInternals() {
         }
 
         function onBotDelayStart(event) {
-            console.log('Bot start thinking', event.detail)
+            console.log('Bot start thinking', event.detail);
         }
 
         function onBotDelayEnd(event) {
-            console.log('Bot done', event.detail)
+            console.log('Bot done', event.detail);
         }
     }
 })();
