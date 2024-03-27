@@ -3,37 +3,25 @@
 var GameService = (function hideInternals() {
     var { BotDifficulty, GameTypes } = TicTacToe;
 
+    var events = Object.freeze({
+        GAME_OVER: 'game-over',
+        BOT_DELAY_START: 'bot-delay-start',
+        BOT_DELAY_END: 'bot-delay-end',
+    });
+
     var baseConfig = {
         botDifficulty: BotDifficulty.EASY,
         botArtificialPlayDelayRange: null, // [ 1500, 3500 ] -> In ms, pick random value inside range.
         gameType: GameTypes.PLAYER_VS_PLAYER,
         P1Name: 'Player 1',
         P2Name: 'Player 2',
-        onGameOverCallback: function onGameOver(
-            winner,
-            winningRow,
-            winningCells
-        ) {
-            if (!winner) {
-                console.log('Tie!');
-            } else {
-                console.log(`${winner.name} won!`);
-                console.log(
-                    `Victory at ${winningRow} ( Cells [${winningCells}] )`
-                );
-            }
-        },
-        onBotStartThinkingCallback: function onBotStartThinking(name, symbol) {
-            console.log(`${name} ( ${symbol} ) is thinking...`);
-        },
-        onBotDoneThinkingCallback: function onBotDoneThinking(name, symbol) {
-            console.log(`${name} ( ${symbol} ) settled on a play.`);
-        },
+        eventTarget: document.createElement('div'), // Just a dummy event in case one was not passed in.
     };
 
     return GameService;
 
-    // GameService: Responsible for overall game flow.
+    // =======================================
+
     function GameService() {
         var _config = null;
         var _game = null;
@@ -44,6 +32,7 @@ var GameService = (function hideInternals() {
             playTurn,
             rematch,
             init,
+            events,
         };
 
         Object.defineProperties(instance, {
@@ -117,11 +106,11 @@ var GameService = (function hideInternals() {
                       )
                     : null;
 
-                _config.onGameOverCallback(
+                dispatchEvent(events.GAME_OVER, {
                     winner,
-                    _game.winningRow,
-                    winningCells
-                );
+                    winningRow: _game.winningRow,
+                    winningCells,
+                });
             }
         }
 
@@ -144,18 +133,28 @@ var GameService = (function hideInternals() {
                 let [min, max] = _config.botArtificialPlayDelayRange;
                 let timeout = Utils.getRandomNumber(min, max);
 
-                if (_config.onBotStartThinkingCallback) {
-                    _config.onBotStartThinkingCallback(bot.name, bot.symbol);
-                }
+                dispatchEvent(events.BOT_DELAY_START, {
+                    name: bot.name,
+                    symbol: bot.symbol,
+                    delay: timeout,
+                });
 
                 await Utils.sleep(timeout);
 
-                if (_config.onBotDoneThinkingCallback) {
-                    _config.onBotDoneThinkingCallback(bot.name, bot.symbol);
-                }
+                dispatchEvent(events.BOT_DELAY_END, {
+                    name: bot.name,
+                    symbol: bot.symbol,
+                });
             }
 
             _game.placeAtPosition(botPlay);
+        }
+
+        function dispatchEvent(eventType, payload) {
+            _config.eventTarget.dispatchEvent(
+                new CustomEvent(eventType, {
+                    detail: payload,
+                }));
         }
     }
 

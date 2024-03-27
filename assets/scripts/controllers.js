@@ -228,7 +228,6 @@ var DOMGameController = (function hideInternals() {
     // =====================================
 
     function Controller(gameService) {
-        // var _config = null;
         var _resetButtonEle = null;
         var _gameBoardEle = null;
 
@@ -241,35 +240,26 @@ var DOMGameController = (function hideInternals() {
 
         // =====================================
 
-        // var baseConfig = {
-        //     botDifficulty: BotDifficulty.EASY,
-        //     botArtificialPlayDelayRange: [1500, 3500] || null,
-        //     gameType: GameTypes.PLAYER_VS_PLAYER,
-        //     P1Name: null,
-        //     P2Name: null,
-        //     onGameOverCallback: null,
-        //     onBotStartThinkingCallback: null,
-        //     onBotDoneThinkingCallback: null,
-        //     domElements: {
-        //         resetButton: '...',
-        //         boardCells: {
-        //             A1: element,
-        //         },
-        //     },
-        // };
-
         async function init(config) {
             var {
                 domElements: { resetButton, board },
                 ...serviceConfig
             } = config;
-            gameService.init({ ...serviceConfig, onGameOverCallback });
+
+            gameService.init({
+                ...serviceConfig,
+                eventTarget: window,
+            });
 
             _resetButtonEle = resetButton;
             _resetButtonEle.addEventListener('click', handleResetClick);
 
             _gameBoardEle = board;
             _gameBoardEle.addEventListener('click', handleCellClick);
+
+            window.addEventListener(gameService.events.GAME_OVER, onGameOver);
+            window.addEventListener(gameService.events.BOT_DELAY_START, onBotDelayStart);
+            window.addEventListener(gameService.events.BOT_DELAY_END, onBotDelayEnd);
 
             updateUI();
 
@@ -300,30 +290,12 @@ var DOMGameController = (function hideInternals() {
             await checkForBot();
         }
 
-        // function adjustBoardCellButtons() {
-        //     var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
-        //     // If game is over or next player is a bot, disable all cell buttons
-        //     if (gameService.isGameOver || 'play' in gameService.currentPlayer) {
-        //         cellButtons.forEach((button) => (button.disabled = true));
-        //     }
-        //     // else enable only the empty cell buttons
-        //     else {
-        //         var boardState = gameService.board;
-
-        //         cellButtons.forEach((button) => {
-        //             var cellID = button.dataset.cell;
-
-        //             var isEmpty = boardState[cellID] === ' ';
-        //             button.disabled = !isEmpty;
-        //         });
-        //     }
-        // }
-
         function updateUI() {
             var boardState = gameService.board;
             var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
 
-            var shouldDisableAllButtons = gameService.isGameOver || 'play' in gameService.currentPlayer;
+            var shouldDisableAllButtons =
+                gameService.isGameOver || 'play' in gameService.currentPlayer;
 
             cellButtons.forEach(function updateCell(button) {
                 var cellID = button.dataset.cell;
@@ -344,21 +316,6 @@ var DOMGameController = (function hideInternals() {
             }
         }
 
-        function onGameOverCallback(winner, winningRow, winningCells) {
-            // mark the winning row, if any
-            if (winningRow) {
-                var row = _gameBoardEle.querySelector(
-                    `[data-row-id="${winningRow}"]`
-                );
-                row.classList.add('visible');
-            }
-
-            // enabled rematch button
-            _resetButtonEle.disabled = false;
-
-            // update scores and info on ui
-        }
-
         function hideWinningRows() {
             var rows = _gameBoardEle.querySelectorAll(
                 '.game-board__winner-line'
@@ -373,6 +330,10 @@ var DOMGameController = (function hideInternals() {
             _resetButtonEle.removeEventListener('click', handleResetClick);
             _gameBoardEle.removeEventListener('click', handleCellClick);
 
+            window.removeEventListener(gameService.events.GAME_OVER, onGameOver);
+            window.removeEventListener(gameService.events.BOT_DELAY_START, onBotDelayStart);
+            window.removeEventListener(gameService.events.BOT_DELAY_END, onBotDelayEnd);
+
             var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
 
             cellButtons.forEach(function disableButton(button) {
@@ -381,6 +342,31 @@ var DOMGameController = (function hideInternals() {
             });
 
             hideWinningRows();
+        }
+
+        // ============= EVENTS ================
+
+        function onGameOver(event) {
+            var { winningRow } = event.detail;
+            // mark the winning row, if any
+            if (winningRow) {
+                var row = _gameBoardEle.querySelector(
+                    `[data-row-id="${winningRow}"]`
+                );
+                row.classList.add('visible');
+            }
+
+            // enabled rematch button
+            _resetButtonEle.disabled = false;
+            // update scores and info on ui
+        }
+
+        function onBotDelayStart(event) {
+            console.log('Bot start thinking', event.detail)
+        }
+
+        function onBotDelayEnd(event) {
+            console.log('Bot done', event.detail)
         }
     }
 })();
