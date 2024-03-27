@@ -10,6 +10,7 @@ var Utils = (function () {
         getRandomNumber,
         sleep,
         shuffle,
+        throttle,
     };
 
     return Object.freeze(publicAPI);
@@ -94,5 +95,31 @@ var Utils = (function () {
         return new Promise((resolve) => {
             setTimeout(() => resolve(), ms);
         });
+    }
+
+    function throttle(func, ms = 500) {
+        // Get initial timestamp for function call
+        let timestamp = getTimestamp();
+    
+        return function throttled(...args) {
+            // Get current timestamp
+            let now = getTimestamp();
+    
+            // Calculate difference
+            if (now - timestamp < ms) {
+                // If not enough time has elapsed, do nothing.
+                return;
+            }
+    
+            // Else call the throttled function.
+            func(...args);
+    
+            // And update last function call timestamp
+            timestamp = getTimestamp();
+        };
+    
+        function getTimestamp() {
+            return new Date().getTime();
+        }
     }
 })();

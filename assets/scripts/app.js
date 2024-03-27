@@ -94,10 +94,18 @@ var App = (function hideInternals() {
         });
 
         var firstFocusable = curPage.querySelector('[data-default-focus]');
-        curPage.addEventListener('transitionend', () => {
-            if (firstFocusable) {
-                firstFocusable.focus();
+
+        curPage.addEventListener('transitionend', function focusFirstFocusable(event) {
+            if(event.target !== event.currentTarget || !firstFocusable) {
+                // If the element is not firing on the page or there's no focusable,
+                // do nothing.
+                return;
             }
+
+            firstFocusable.focus();
+
+            // Remove event to prevent bubbling on multiple elements.
+            curPage.removeEventListener('transitionend', focusFirstFocusable);
         });
 
         state.currentPage = pageNumber;
