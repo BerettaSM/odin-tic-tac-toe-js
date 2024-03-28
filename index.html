@@ -127,6 +127,18 @@
 
             <section class="main__page main__page-active" aria-hidden="true">
 
+                <div class="game-score">
+
+                    <div class="game-score__player">
+                        <p><span data-pname="x">Player ( X )</span>: <strong data-pscore="x">0</strong></p>
+                    </div>
+
+                    <div class="game-score__player">
+                        <p><span data-pname="o">Player ( O )</span>: <strong data-pname="o">0</strong></p>
+                    </div>
+
+                </div>
+
                 <div class="game-board" data-id="board">
 
                     <div class="game-board__cell">
@@ -177,27 +189,23 @@
 
                 <div class="game-actions">
 
-                    <div>
-                        <button class="pushable" data-id="return-action" data-default-enabled disabled>
-                            <span class="pushable__shadow"></span>
-                            <span class="pushable__edge"></span>
-                            <span class="pushable__label">&lt; Main Menu</span>
-                        </button>
-                    </div>
+                    <button class="pushable" data-id="return-action" data-default-enabled disabled>
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">&lt; Main Menu</span>
+                    </button>
 
-                    <div>
-                        <button class="pushable" data-id="start-action" data-default-enabled disabled data-default-focus>
-                            <span class="pushable__shadow"></span>
-                            <span class="pushable__edge"></span>
-                            <span class="pushable__label">Start</span>
-                        </button>
-    
-                        <button class="pushable" data-id="reset-action" disabled>
-                            <span class="pushable__shadow"></span>
-                            <span class="pushable__edge"></span>
-                            <span class="pushable__label">Rematch</span>
-                        </button>
-                    </div>
+                    <button class="pushable" data-id="start-action" data-default-enabled disabled data-default-focus>
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">Start</span>
+                    </button>
+
+                    <button class="pushable hidden" data-id="reset-action" disabled>
+                        <span class="pushable__shadow"></span>
+                        <span class="pushable__edge"></span>
+                        <span class="pushable__label">Rematch</span>
+                    </button>
 
                 </div>
 

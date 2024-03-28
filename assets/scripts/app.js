@@ -201,6 +201,10 @@ var App = (function hideInternals() {
         var gameController;
 
         startButton.addEventListener('click', function startGame() {
+            startButton.disabled = true;
+            startButton.classList.add('hidden');
+            resetButton.classList.remove('hidden');
+
             window.dispatchEvent(new CustomEvent(GameEvents.GAME_START));
 
             var gameService = new GameService();
@@ -218,14 +222,16 @@ var App = (function hideInternals() {
 
         returnButton.addEventListener('click', function returnToMainMenu() {
             startButton.disabled = false;
-            startButton.querySelector('.pushable__label').textContent = 'Start';
+            startButton.classList.remove('hidden');
+            resetButton.classList.add('hidden');
+            resetButton.querySelector('.pushable__label').textContent = 'Rematch';
             gameController?.cleanUp();
             changeToPage(0);
         });
 
         window.addEventListener(GameEvents.GAME_START, function onGameStart() {
-            startButton.disabled = true;
-            startButton.querySelector('.pushable__label').textContent =
+            resetButton.disabled = true;
+            resetButton.querySelector('.pushable__label').textContent =
                 'Playing...';
         });
 
@@ -233,8 +239,8 @@ var App = (function hideInternals() {
             GameEvents.GAME_OVER,
             function enableMainMenuButton() {
                 resetButton.disabled = false;
-                startButton.querySelector('.pushable__label').textContent =
-                    'Game over';
+                resetButton.querySelector('.pushable__label').textContent =
+                    'Rematch';
             }
         );
     }

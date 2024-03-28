@@ -98,6 +98,8 @@ h6 {
         var(--TERTIARY_LIGHT)
     );
     --TEXT_WHITE: whitesmoke;
+
+    --BOARD-SIZE: 470px;
 }
 
 body {
@@ -214,10 +216,6 @@ a:active::before {
     padding-block-start: 32px;
 }
 
-.form__control.hidden {
-    display: none;
-}
-
 .main__page .form .pushable {
     margin-block-start: 40px;
 }
@@ -255,13 +253,32 @@ a:active::before {
     outline: 2px solid var(--COLOR_PRIMARY);
 }
 
+.game-score {
+    display: flex;
+    font-size: 1.5rem;
+    color: var(--COLOR_PRIMARY);
+    width: 100%;
+    max-width: var(--BOARD-SIZE);
+}
+
+.game-score__player {
+    flex: 1;
+}
+
+.game-score__player strong {
+    font-size: 2rem;
+    color: var(--COLOR_TERTIARY);
+}
+
 .game-board {
     position: relative;
-    height: 470px;
-    width: 470px;
+    border: 2px solid var(--COLOR_PRIMARY);
+    border-radius: 9px;
+    height: var(--BOARD-SIZE);
+    width: var(--BOARD-SIZE);
     display: grid;
-    grid-template-columns: repeat(3, minmax(150px, 1fr));
-    grid-template-rows: repeat(3, minmax(150px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
     gap: 5px;
     padding: 5px;
     isolation: isolate;
@@ -343,19 +360,14 @@ a:active::before {
 }
 
 .game-actions {
-    display: flex;
-    width: 470px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: auto;
     gap: 16px;
+    width: var(--BOARD-SIZE);
 }
 
-.game-actions > div {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.game-actions .pushable {
+.game-actions > .pushable {
     width: 100%;
 }
 
@@ -458,6 +470,10 @@ a:active::before {
     max-width: 1200px;
     padding-inline: 16px;
     margin: auto;
+}
+
+.hidden {
+    display: none;
 }
 
 @media (prefers-reduced-motion: no-preference) {
