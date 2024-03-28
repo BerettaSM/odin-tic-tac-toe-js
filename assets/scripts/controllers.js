@@ -286,6 +286,10 @@ var DOMGameController = (function hideInternals() {
 
         async function handleResetClick() {
             _resetButtonEle.disabled = true;
+            var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
+            cellButtons.forEach(function removeBlinkClass(button) {
+                button.classList.remove('blink');
+            });
             gameService.rematch();
             updateUI();
             hideWinningRows();
@@ -304,6 +308,7 @@ var DOMGameController = (function hideInternals() {
                 button.textContent = boardState[cellID];
                 var isEmpty = boardState[cellID] === ' ';
                 button.disabled = shouldDisableAllButtons || !isEmpty;
+                button.textContent.trim() && button.classList.add('blink');
             });
         }
 
@@ -354,6 +359,7 @@ var DOMGameController = (function hideInternals() {
             cellButtons.forEach(function disableButton(button) {
                 button.disabled = true;
                 button.textContent = '';
+                button.classList.remove('blink');
             });
 
             hideWinningRows();
