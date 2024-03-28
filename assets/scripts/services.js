@@ -116,11 +116,18 @@ var GameService = (function hideInternals() {
                     newScore: _scores[winner?.symbol],
                 });
             }
+
+            var nextPlayer = getPlayer(_players, _game.currentSymbol);
+
+            dispatchEvent(GameEvents.GAME_NEW_TURN, {
+                player: nextPlayer.name,
+                symbol: nextPlayer.symbol,
+            });
         }
 
         function rematch() {
-            dispatchEvent(GameEvents.GAME_START);
             _game.reset();
+            dispatchEvent(GameEvents.GAME_START);
         }
 
         function init(config) {

@@ -199,6 +199,7 @@ var App = (function hideInternals() {
             changeToPage(4);
         });
 
+        var gameService;
         var gameController;
 
         startButton.addEventListener('click', function startGame() {
@@ -206,9 +207,7 @@ var App = (function hideInternals() {
             startButton.classList.add('hidden');
             resetButton.classList.remove('hidden');
 
-            window.dispatchEvent(new CustomEvent(GameEvents.GAME_START));
-
-            var gameService = new GameService();
+            gameService = new GameService();
             gameController = new DOMGameController(gameService);
 
             gameController.init({
@@ -219,6 +218,8 @@ var App = (function hideInternals() {
                     board,
                 },
             });
+
+            window.dispatchEvent(new CustomEvent(GameEvents.GAME_START));
 
             gameService.players.forEach(function updatePlayerOnUI(player) {
                 var { name, symbol } = player;
@@ -241,10 +242,20 @@ var App = (function hideInternals() {
             changeToPage(0);
         });
 
+
         window.addEventListener(GameEvents.GAME_START, function onGameStart() {
             resetButton.disabled = true;
             resetButton.querySelector('.pushable__label').textContent =
                 'Playing...';
+
+            var { name, symbol } = gameService.currentPlayer;
+
+            window.dispatchEvent(new CustomEvent(GameEvents.GAME_NEW_TURN, {
+                detail: {
+                    player: name,
+                    symbol
+                },
+            }));
         });
 
         window.addEventListener(
@@ -261,6 +272,17 @@ var App = (function hideInternals() {
                 }
             }
         );
+
+        window.addEventListener(GameEvents.GAME_NEW_TURN, function updateActivePlayer(event) {
+            var { symbol } = event.detail;
+
+            for(let pInfo of scoreBoard.querySelectorAll('.game-score__player')) {
+                pInfo.classList.remove('current');
+            }
+  
+            scoreBoard.querySelector(`[data-psymbol="${symbol}"]`)
+                .classList.add('current');
+        })
     }
 
     function adjustNamesForm() {
