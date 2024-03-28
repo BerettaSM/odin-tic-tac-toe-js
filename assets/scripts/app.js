@@ -39,6 +39,7 @@ var App = (function hideInternals() {
 
     // Board page
     var board = main.querySelector('[data-id="board"]');
+    var scoreBoard = main.querySelector('.game-score');
     var startButton = main.querySelector('button[data-id="start-action"]');
     var resetButton = main.querySelector('button[data-id="reset-action"]');
     var returnButton = main.querySelector('button[data-id="return-action"]');
@@ -218,6 +219,16 @@ var App = (function hideInternals() {
                     board,
                 },
             });
+
+            gameService.players.forEach(function updatePlayerOnUI(player) {
+                var { name, symbol } = player;
+                var pInfo = scoreBoard.querySelector(`[data-psymbol="${symbol}"]`);
+                var pName = name.includes(`( ${symbol} )`) ? name : `${name} ( ${symbol} )`;
+                pInfo.querySelector('.name').textContent = pName;
+                pInfo.querySelector('.score').textContent = '0';
+            });
+
+            scoreBoard.classList.add('visible');
         });
 
         returnButton.addEventListener('click', function returnToMainMenu() {
@@ -225,6 +236,7 @@ var App = (function hideInternals() {
             startButton.classList.remove('hidden');
             resetButton.classList.add('hidden');
             resetButton.querySelector('.pushable__label').textContent = 'Rematch';
+            scoreBoard.classList.remove('visible');
             gameController?.cleanUp();
             changeToPage(0);
         });
@@ -237,10 +249,16 @@ var App = (function hideInternals() {
 
         window.addEventListener(
             GameEvents.GAME_OVER,
-            function enableMainMenuButton() {
+            function updateUiSections(event) {
+                var { winner, newScore } = event.detail;
+
                 resetButton.disabled = false;
                 resetButton.querySelector('.pushable__label').textContent =
                     'Rematch';
+
+                if(winner) {
+                    scoreBoard.querySelector(`[data-psymbol="${winner.symbol}"] .score`).textContent = newScore;
+                }
             }
         );
     }

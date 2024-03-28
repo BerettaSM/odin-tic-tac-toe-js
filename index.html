@@ -127,17 +127,19 @@
 
             <section class="main__page main__page-active" aria-hidden="true">
 
-                <div class="game-score">
+                <ul class="game-score">
+                
+                    <li class="game-score__player" data-psymbol="X">
+                        <p class="name">Player ( X )</p>
+                        <strong class="score">0</strong>
+                    </li>
 
-                    <div class="game-score__player">
-                        <p><span data-pname="x">Player ( X )</span>: <strong data-pscore="x">0</strong></p>
-                    </div>
+                    <li class="game-score__player" data-psymbol="O">
+                        <p class="name">Player ( O )</p>
+                        <strong class="score">0</strong>
+                    </li>
 
-                    <div class="game-score__player">
-                        <p><span data-pname="o">Player ( O )</span>: <strong data-pname="o">0</strong></p>
-                    </div>
-
-                </div>
+                </ul>
 
                 <div class="game-board" data-id="board">
 

@@ -113,6 +113,7 @@ var GameService = (function hideInternals() {
                     winner,
                     winningRow: _game.winningRow,
                     winningCells,
+                    newScore: _scores[winner?.symbol],
                 });
             }
         }
