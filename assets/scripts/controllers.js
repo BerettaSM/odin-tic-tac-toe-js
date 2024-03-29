@@ -286,8 +286,6 @@ var DOMGameController = (function hideInternals() {
             window.addEventListener(GameEvents.GAME_START, onGameStart);
             window.addEventListener(GameEvents.GAME_OVER, onGameOver);
             window.addEventListener(GameEvents.GAME_NEW_TURN, onGameNewTurn);
-            window.addEventListener(GameEvents.BOT_DELAY_START, onBotDelayStart);
-            window.addEventListener(GameEvents.BOT_DELAY_END, onBotDelayEnd);
 
             updateUI();
 
@@ -355,8 +353,6 @@ var DOMGameController = (function hideInternals() {
             window.removeEventListener(GameEvents.GAME_START, onGameStart);
             window.removeEventListener(GameEvents.GAME_OVER, onGameOver);
             window.removeEventListener(GameEvents.GAME_NEW_TURN, onGameNewTurn);
-            window.removeEventListener(GameEvents.BOT_DELAY_START, onBotDelayStart);
-            window.removeEventListener(GameEvents.BOT_DELAY_END, onBotDelayEnd);
 
             var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
 
@@ -484,14 +480,6 @@ var DOMGameController = (function hideInternals() {
             _scoreBoardEle
                 .querySelector(`[data-psymbol="${symbol}"]`)
                 .classList.add('current');
-        }
-
-        function onBotDelayStart(event) {
-            console.log('Bot start thinking', event.detail);
-        }
-
-        function onBotDelayEnd(event) {
-            console.log('Bot done', event.detail);
         }
     }
 })();
