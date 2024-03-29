@@ -372,6 +372,16 @@ var App = (function hideInternals() {
 // =====================================
 var footerYearSpan = document.querySelector('span[data-id="footer-year"]');
 footerYearSpan.textContent = new Date().getFullYear();
+
+if (Utils.hasTouchSupport()) {
+    // If on mobile, disable the console play option,
+    // since its unlikely the user will even be able to play
+    // that way.
+    let button = document.querySelector('[data-id="play-console-match"]');
+    button.disabled = true;
+    button.style.display = 'none';
+}
+
 // =====================================
 
 App.init();

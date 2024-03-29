@@ -10,6 +10,7 @@ var Utils = (function () {
         getRandomNumber,
         sleep,
         shuffle,
+        hasTouchSupport,
     };
 
     return Object.freeze(publicAPI);
@@ -94,5 +95,10 @@ var Utils = (function () {
         return new Promise((resolve) => {
             setTimeout(() => resolve(), ms);
         });
+    }
+
+    // See: https://medium.com/geekculture/detecting-mobile-vs-desktop-browsers-in-javascript-ad46e8d23ce5
+    function hasTouchSupport() {
+        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     }
 })();
