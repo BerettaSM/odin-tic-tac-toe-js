@@ -448,6 +448,14 @@ a:active::before {
     fill: var(--COLOR_PRIMARY);
 }
 
+.game-board__cell .symbol.transparent {
+    pointer-events: none;
+}
+
+.game-board__cell .symbol.transparent path {
+    fill: var(--COLOR_PRIMARY_TRANSPARENT);
+}
+
 .cell-button {
     position: absolute;
     height: 100%;

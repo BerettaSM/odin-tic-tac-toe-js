@@ -237,6 +237,7 @@ var DOMGameController = (function hideInternals() {
         var _resetButtonEle = null;
         var _gameBoardEle = null;
         var _scoreBoardEle = null;
+        var _lastHoverSymbol;
         var _xSymbol = null;
         var _oSymbol = null;
 
@@ -280,6 +281,7 @@ var DOMGameController = (function hideInternals() {
 
             _gameBoardEle = gameBoard;
             _gameBoardEle.addEventListener('click', handleCellClick);
+            _gameBoardEle.addEventListener('mouseover', onBoardHover);
 
             window.addEventListener(GameEvents.GAME_START, onGameStart);
             window.addEventListener(GameEvents.GAME_OVER, onGameOver);
@@ -292,38 +294,16 @@ var DOMGameController = (function hideInternals() {
             await checkForBot();
         }
 
-        // This handler is added to the overall board,
-        // and the actual button is found through event bubbling.
-        async function handleCellClick({ target }) {
-            if (!target.hasAttribute('data-cell')) {
-                // Click occurred within board, but not actually on a button.
-                return;
-            }
-            var cellID = target.dataset.cell;
-            await gameService.playTurn(cellID);
-            updateUI();
-            await checkForBot();
-        }
-
-        async function handleResetClick() {
-            _resetButtonEle.disabled = true;
-            var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
-            cellButtons.forEach(function removeBlinkClass(button) {
-                button.classList.remove('blink');
-                button.innerHTML = '';
-            });
-            gameService.rematch();
-            updateUI();
-            hideWinningRows();
-            await checkForBot();
-        }
-
         function updateUI() {
             var boardState = gameService.board;
             var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
 
             var shouldDisableAllButtons =
                 gameService.isGameOver || 'play' in gameService.currentPlayer;
+
+            if(_lastHoverSymbol) {
+                _lastHoverSymbol.remove();
+            }
 
             cellButtons.forEach(function updateCell(button) {
                 var cellID = button.dataset.cell;
@@ -370,6 +350,7 @@ var DOMGameController = (function hideInternals() {
 
             _resetButtonEle.removeEventListener('click', handleResetClick);
             _gameBoardEle.removeEventListener('click', handleCellClick);
+            _gameBoardEle.removeEventListener('mouseover', onBoardHover);
 
             window.removeEventListener(GameEvents.GAME_START, onGameStart);
             window.removeEventListener(GameEvents.GAME_OVER, onGameOver);
@@ -400,6 +381,45 @@ var DOMGameController = (function hideInternals() {
         }
 
         // ============= EVENTS ================
+
+        // This handler is added to the overall board,
+        // and the actual button is found through event bubbling.
+        async function handleCellClick({ target }) {
+            if (!target.hasAttribute('data-cell')) {
+                // Click occurred within board, but not actually on a button.
+                return;
+            }
+            var cellID = target.dataset.cell;
+            await gameService.playTurn(cellID);
+            updateUI();
+            await checkForBot();
+        }
+
+        async function handleResetClick() {
+            _resetButtonEle.disabled = true;
+            var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
+            cellButtons.forEach(function removeBlinkClass(button) {
+                button.classList.remove('blink');
+                button.innerHTML = '';
+            });
+            gameService.rematch();
+            updateUI();
+            hideWinningRows();
+            await checkForBot();
+        }
+
+        function onBoardHover(event) {
+            var cellID = event.target.dataset.cell;
+            if(_lastHoverSymbol) {
+                _lastHoverSymbol.remove();
+            }
+            if(!cellID || event.target.disabled || gameService.board[cellID] !== ' ') {
+                return;
+            }
+            _lastHoverSymbol = getCellSymbol(gameService.currentPlayer.symbol);
+            _lastHoverSymbol.classList.add('transparent');
+            event.target.appendChild(_lastHoverSymbol);
+        }
 
         function onGameStart() {
             _resetButtonEle.disabled = true;
