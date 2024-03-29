@@ -134,6 +134,7 @@ var ConsoleGameController = (function hideInternals() {
                     Easy: BotDifficulty.EASY,
                     Medium: BotDifficulty.MEDIUM,
                     Hard: BotDifficulty.HARD,
+                    'Very Hard': BotDifficulty.VERY_HARD,
                 }
             );
         }
