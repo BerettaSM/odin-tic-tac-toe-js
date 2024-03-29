@@ -1,7 +1,7 @@
 'use strict';
 
 var ConsoleGameController = (function hideInternals() {
-    var { BotDifficulty, GameTypes, parseToBoardPosition } = TicTacToe;
+    var { BotDifficulty, GameTypes } = TicTacToe;
 
     return Controller;
 
@@ -20,22 +20,14 @@ var ConsoleGameController = (function hideInternals() {
 
         // =====================================
 
-        function init() {
-            _init(gameService, _signal);
+        async function init() {
+            await _init(gameService, _signal);
         }
     }
 
     // =========== INTERNALS ===============
 
     async function _init(gameService, signal) {
-        // Warn the player the game will be played through the browser console
-        window.alert(
-            'This TicTacToe game will be played through the browser console.\n\n' +
-                'Press CTRL + SHIFT + J on Google Chrome.\n' +
-                'Press CTRL + SHIFT + I on Firefox.\n\n' +
-                'Alternatively, search for the console option on settings.'
-        );
-
         // Collect options: players names, game type, bot difficulty
         var config = collectConfig();
 
@@ -67,7 +59,6 @@ var ConsoleGameController = (function hideInternals() {
                     // if the current player is a bot.
                     await gameService.playTurn(tentativePlay, signal);
                 } catch (e) {
-                    console.log(e);
                     if (e instanceof Error && e.name === 'TicTacToeError') {
                         window.alert(e.message);
                     } else {
@@ -86,8 +77,6 @@ var ConsoleGameController = (function hideInternals() {
                 'Would you like to play again? (yes/no): '
             ).toLowerCase()[0];
         } while (replay !== 'n');
-
-        console.log('Thanks for playing! :)');
     }
 
     function printGame(gameService) {
@@ -97,7 +86,8 @@ var ConsoleGameController = (function hideInternals() {
         str += '\n -- SCORES --\n\n';
 
         for (let { name, symbol } of gameService.players) {
-            str += `${name} ( ${symbol} ): ${gameService.scores[symbol]} points\n`;
+            var isCurrentPlayer = gameService.currentPlayer.symbol === symbol;
+            str += `${isCurrentPlayer ? ' TURN --> ' : '          '}${name} ( ${symbol} ): ${gameService.scores[symbol]} points\n`;
         }
 
         str += '\n  -------------\n';
@@ -127,7 +117,7 @@ var ConsoleGameController = (function hideInternals() {
 
     function collectConfig() {
         // game type first
-        var gameType = askForOption('Choose a game type.', {
+        var gameType = askForOption('Choose a game type, or cancel to abort.', {
             'Player VS Player': GameTypes.PLAYER_VS_PLAYER,
             'Player VS Bot': GameTypes.PLAYER_VS_BOT,
             'Bot VS Bot (Spectate)': GameTypes.BOT_VS_BOT,
@@ -136,7 +126,7 @@ var ConsoleGameController = (function hideInternals() {
         var botDifficulty;
         // if game includes a bot, ask difficulty
         if (gameType !== GameTypes.PLAYER_VS_PLAYER) {
-            botDifficulty = askForOption('Choose a bot difficulty.', {
+            botDifficulty = askForOption('Choose a bot difficulty, or cancel to abort.', {
                 Easy: BotDifficulty.EASY,
                 Medium: BotDifficulty.MEDIUM,
                 Hard: BotDifficulty.HARD,
@@ -145,10 +135,10 @@ var ConsoleGameController = (function hideInternals() {
         // collect names (Only appliable to players)
         var P1Name, P2Name;
         if (gameType !== GameTypes.BOT_VS_BOT) {
-            P1Name = askForInput('( Player "X" ) Enter your name: ');
+            P1Name = askForInput('( Player "X" ) Enter your name: ', 'Player');
         }
         if (gameType === GameTypes.PLAYER_VS_PLAYER) {
-            P2Name = askForInput('( Player "O" ) Enter your name: ');
+            P2Name = askForInput('( Player "O" ) Enter your name: ', 'Player');
         }
 
         return {
@@ -159,11 +149,18 @@ var ConsoleGameController = (function hideInternals() {
         };
     }
 
-    function askForInput(description) {
+    function askForInput(description, defaultValue) {
         var input;
 
         while (true) {
-            input = window.prompt(description)?.trim();
+            input = window.prompt(description);
+
+            if(input == null) {
+                // User hit cancel.
+                throw new Error('cancelled');
+            }
+
+            input = input.trim() || defaultValue;
 
             if (input && input.length > 0) {
                 break;
@@ -190,20 +187,24 @@ var ConsoleGameController = (function hideInternals() {
         var choice, input;
 
         while (true) {
-            try {
-                input = window.prompt(menu);
+            
+            input = window.prompt(menu);
 
-                if (input === '') {
-                    choice = 0;
-                    break;
-                }
+            if(input == null) {
+                // User hit cancel.
+                throw new Error('cancelled');
+            }
 
-                choice = Number(input) - 1;
+            if (input === '') {
+                choice = 0;
+                break;
+            }
 
-                if (options[choice] != undefined) {
-                    break;
-                }
-            } catch {}
+            choice = Number(input) - 1;
+
+            if (isFinite(choice) && options[choice] != undefined) {
+                break;
+            }
 
             window.alert('Invalid option! Please, try again...');
         }

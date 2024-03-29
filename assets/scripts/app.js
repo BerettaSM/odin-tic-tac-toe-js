@@ -148,13 +148,51 @@ var App = (function hideInternals() {
     }
 
     function setupListeners() {
-        playConsoleMatchButton.addEventListener('click', function startConsoleMatch() {
+        var displayHowToPlayMessage = false;
 
-            var consoleController = new ConsoleGameController(new GameService());
+        playConsoleMatchButton.addEventListener(
+            'click',
+            async function startConsoleMatch() {
+                if (!displayHowToPlayMessage) {
+                    window.alert(
+                        'This TicTacToe game will be played through the browser console.\n' +
+                            'Make sure to have it open the next time you click the play button.\n\n' +
+                            'Press CTRL + SHIFT + J on Google Chrome.\n' +
+                            'Press CTRL + SHIFT + I on Firefox.\n\n' +
+                            'Alternatively, search for the console option on settings.'
+                    );
+                    displayHowToPlayMessage = true;
+                    return;
+                }
 
-            consoleController.init();
+                playConsoleMatchButton.disabled = true;
+                playDomMatchButton.disabled = true;
+                playConsoleMatchButton.querySelector(
+                    '.pushable__label'
+                ).textContent = 'Ongoing match on console...';
 
-        });
+                try {
+                    await Utils.sleep(500);
+                    var consoleController = new ConsoleGameController(
+                        new GameService()
+                    );
+                    await consoleController.init();
+                } catch (e) {
+                    if (!(e instanceof Error && e.message === 'cancelled')) {
+                        throw e;
+                    }
+                } finally {
+                    playConsoleMatchButton.disabled = false;
+                    playDomMatchButton.disabled = false;
+                    playConsoleMatchButton.querySelector(
+                        '.pushable__label'
+                    ).textContent = 'Play a match (browser console)';
+                }
+
+                console.clear();
+                console.log('Thanks for playing! :)');
+            }
+        );
 
         playDomMatchButton.addEventListener(
             'click',
