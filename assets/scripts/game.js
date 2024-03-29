@@ -18,10 +18,18 @@ var TicTacToe = (function hideInternals() {
         'diagonal-right': [2, 4, 6],
     });
 
+    const BOT_DIFFICULTY_MULTIPLIERS = {
+        EASY: 0.25,
+        MEDIUM: 0.75,
+        HARD: 1.75,
+        VERY_HARD: 4,
+    }
+
     const BotDifficulty = Object.freeze({
         EASY: 'EASY',
         MEDIUM: 'MEDIUM',
         HARD: 'HARD',
+        VERY_HARD: 'VERY_HARD',
     });
     const GameTypes = Object.freeze({
         PLAYER_VS_PLAYER: 'PLAYER_VS_PLAYER',
@@ -182,10 +190,10 @@ var TicTacToe = (function hideInternals() {
 
         var botPlays = [
             // [ function, chance ]
-            [getWinningPlay, 0.5],
-            [getDefensivePlay, 0.6],
-            [getCornerPlay, 0.5],
-            [getCompletionPlay, 0.7],
+            [getWinningPlay, 0.4],
+            [getDefensivePlay, 0.55],
+            [getCornerPlay, 0.3],
+            [getCompletionPlay, 0.65],
             [getRandomPlay],
         ];
 
@@ -205,10 +213,10 @@ var TicTacToe = (function hideInternals() {
                         if (baseChance == null) {
                             return playFn;
                         }
-                        var chance = getPlayChanceByDifficulty(
-                            difficulty,
-                            baseChance
-                        );
+                        
+                        var difficultyMultipler = BOT_DIFFICULTY_MULTIPLIERS[difficulty];
+                        var chance = baseChance * difficultyMultipler;
+
                         return Math.random() < chance ? playFn : null;
                     })
 
@@ -396,17 +404,6 @@ var TicTacToe = (function hideInternals() {
             throw new Error(`No such corner exists. Corner: "${corner}"`);
         }
         return Math.abs(corner - 8);
-    }
-
-    function getPlayChanceByDifficulty(difficulty, baseChance) {
-        switch (difficulty) {
-            case BotDifficulty.EASY:
-                return baseChance / 2;
-            case BotDifficulty.HARD:
-                return 1;
-            default:
-                return baseChance;
-        }
     }
 
     function getSymbolsOnRow(board, row) {
