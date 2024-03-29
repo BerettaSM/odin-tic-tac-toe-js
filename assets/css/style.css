@@ -242,7 +242,6 @@ a:active::before {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding-inline-start: 32px;
 }
 
 .form__control {
@@ -260,7 +259,6 @@ a:active::before {
     }
 
     .main__page .form {
-        padding-inline-start: 0;
         width: calc(100% - var(--MAX_WIDTH_PADDING) * 2);
     }
 
