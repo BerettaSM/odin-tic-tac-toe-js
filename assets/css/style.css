@@ -34,8 +34,10 @@ svg {
 input,
 button,
 textarea,
-select {
+select,
+a {
     font: inherit;
+    -webkit-tap-highlight-color: transparent;
 }
 
 p,
@@ -102,7 +104,8 @@ h6 {
     );
     --TEXT_WHITE: whitesmoke;
 
-    --BOARD-SIZE: 470px;
+    --MAX_WIDTH_PADDING: 16px;
+    --BOARD_SIZE: max(200px, min(calc(100vw - 32px), 470px));
 }
 
 body {
@@ -178,12 +181,37 @@ a:active::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 16px;
     height: 100%;
     width: 100%;
     opacity: 0;
     pointer-events: none;
     transition: opacity 250ms ease-in-out;
+}
+
+.main__page:not(:first-of-type) .pushable {
+    width: 100%;
+}
+
+@media (max-width: 30rem) {
+    .main__page.start-menu,
+    .main__page.bot-difficulty-menu,
+    .main__page.name-form {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .main__page.game-type-menu .types-menu,
+    .main__page.bot-difficulty-menu,
+    .main__page.game-type-menu .pushable,
+    .main__page.start-menu .pushable {
+        width: 100%;
+    }
+
+    .main__page.game-type-menu {
+        flex-direction: column;
+        gap: 16px;
+    }
 }
 
 .main__page:last-of-type {
@@ -200,12 +228,14 @@ a:active::before {
 .main__page h2 {
     font-size: 2rem;
     color: var(--COLOR_PRIMARY);
+    width: fit-content;
 }
 
 .main__page .types-menu {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    padding: 0;
 }
 
 .main__page .form {
@@ -222,6 +252,21 @@ a:active::before {
 
 .main__page .form .pushable {
     margin-block-start: 40px;
+}
+
+@media (max-width: 30rem) {
+    .main__page .types-menu {
+        width: 100%;
+    }
+
+    .main__page .form {
+        padding-inline-start: 0;
+        width: calc(100% - var(--MAX_WIDTH_PADDING) * 2);
+    }
+
+    .main__page .form .pushable {
+        margin-block-start: 40px;
+    }
 }
 
 .form__control label {
@@ -251,6 +296,7 @@ a:active::before {
     background-color: var(--COLOR_BG_LIGHT);
     color: var(--COLOR_PRIMARY);
     font-size: 1.25rem;
+    width: 100%;
 }
 
 .form__control input:focus {
@@ -260,11 +306,11 @@ a:active::before {
 .game-score {
     display: flex;
     justify-content: space-between;
+    align-items: flex-end;
     color: var(--COLOR_PRIMARY);
-    max-width: var(--BOARD-SIZE);
+    max-width: var(--BOARD_SIZE);
     width: 100%;
     list-style: none;
-    font-size: 1.5rem;
     padding: 0;
     opacity: 0;
     transition: opacity 350ms ease-in-out;
@@ -291,6 +337,10 @@ a:active::before {
     background-color: var(--COLOR_PRIMARY_TRANSPARENT);
 }
 
+.game-score__player p {
+    font-size: 1.5rem;
+}
+
 .game-score__player strong {
     font-size: 3rem;
     color: var(--COLOR_TERTIARY);
@@ -298,12 +348,46 @@ a:active::before {
     line-height: 1;
 }
 
+@media (max-width: 30rem) {
+    .game-score {
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+    }
+
+    .game-score__player:last-of-type {
+        align-items: center;
+    }
+
+    .game-score__player {
+        flex-direction: revert;
+        align-items: center;
+        justify-content: space-between;
+        padding-block: 4px;
+        width: 100%;
+    }
+
+    .game-score__player strong {
+        padding-inline-end: 0;
+    }
+}
+
+@media (max-width: 20rem) {
+    .game-score__player p {
+        font-size: 1rem;
+    }
+
+    .game-score__player strong {
+        font-size: 2rem;
+    }
+}
+
 .game-board {
     position: relative;
     border: 2px solid var(--COLOR_PRIMARY);
     border-radius: 9px;
-    height: var(--BOARD-SIZE);
-    width: var(--BOARD-SIZE);
+    height: var(--BOARD_SIZE);
+    width: var(--BOARD_SIZE);
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
@@ -400,15 +484,46 @@ a:active::before {
 }
 
 .game-actions {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: auto;
+    display: flex;
+    flex-wrap: wrap;
     gap: 16px;
-    width: var(--BOARD-SIZE);
+    width: var(--BOARD_SIZE);
 }
 
 .game-actions > .pushable {
-    width: 100%;
+    flex-basis: calc(50% - 8px);
+}
+
+.game-actions > .pushable .pushable__label {
+    gap: 8px;
+}
+
+.game-actions > .pushable .icon {
+    height: 30px;
+    width: 30px;
+    transform: rotateZ(0.5turn);
+}
+
+.game-actions > .pushable .icon path {
+    stroke: var(--TEXT_WHITE);
+    fill: transparent;
+}
+
+@media (max-width: 30rem) {
+    .game-score {
+        flex: 1;
+    }
+
+    .game-actions {
+        /* padding-block-start: 16px; */
+        flex: 1;
+        flex-direction: column-reverse;
+        justify-content: flex-end;
+    }
+
+    .game-actions > .pushable {
+        flex-basis: revert;
+    }
 }
 
 /* 3D Magical Buttons, by Josh W. Comeau - https://www.joshwcomeau.com/animation/3d-button/ */
@@ -417,7 +532,7 @@ a:active::before {
     border: none;
     background: transparent;
     padding: 0;
-    max-width: 320px;
+    min-width: 140px;
     cursor: pointer;
     outline-offset: 4px;
     transition: filter 250ms;
@@ -465,7 +580,9 @@ a:active::before {
 }
 
 .pushable__label {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: relative;
     background-color: var(--COLOR_PRIMARY);
     color: var(--TEXT_WHITE);
@@ -474,6 +591,14 @@ a:active::before {
     font-size: 1.25rem;
     will-change: transform;
     transform: translateY(-4px);
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 30rem) {
+    .pushable__label {
+        padding: 6px 12px;
+    }
 }
 
 .pushable:disabled .pushable__label {
@@ -508,7 +633,7 @@ a:active::before {
 
 .max-width {
     max-width: 1200px;
-    padding-inline: 16px;
+    padding-inline: var(--MAX_WIDTH_PADDING);
     margin: auto;
 }
 
@@ -577,7 +702,7 @@ a:active::before {
     .game-score__player:first-of-type {
         transform: translateX(-200px);
     }
-    
+
     .game-score__player:last-of-type {
         transform: translateX(200px);
     }

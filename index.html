@@ -22,11 +22,17 @@
 <body>
 
     <template data-id="symbol-x-template">
-        <svg class="symbol" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M376.6 84.5c11.3-13.6 9.5-33.8-4.1-45.1s-33.8-9.5-45.1 4.1L192 206 56.6 43.5C45.3 29.9 25.1 28.1 11.5 39.4S-3.9 70.9 7.4 84.5L150.3 256 7.4 427.5c-11.3 13.6-9.5 33.8 4.1 45.1s33.8 9.5 45.1-4.1L192 306 327.4 468.5c11.3 13.6 31.5 15.4 45.1 4.1s15.4-31.5 4.1-45.1L233.7 256 376.6 84.5z"/></svg>
+        <svg class="symbol" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+            <path
+                d="M376.6 84.5c11.3-13.6 9.5-33.8-4.1-45.1s-33.8-9.5-45.1 4.1L192 206 56.6 43.5C45.3 29.9 25.1 28.1 11.5 39.4S-3.9 70.9 7.4 84.5L150.3 256 7.4 427.5c-11.3 13.6-9.5 33.8 4.1 45.1s33.8 9.5 45.1-4.1L192 306 327.4 468.5c11.3 13.6 31.5 15.4 45.1 4.1s15.4-31.5 4.1-45.1L233.7 256 376.6 84.5z" />
+        </svg>
     </template>
 
     <template data-id="symbol-o-template">
-        <svg class="symbol" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 96a160 160 0 1 0 0 320 160 160 0 1 0 0-320zM448 256A224 224 0 1 1 0 256a224 224 0 1 1 448 0z"/></svg>
+        <svg class="symbol" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+            <path
+                d="M224 96a160 160 0 1 0 0 320 160 160 0 1 0 0-320zM448 256A224 224 0 1 1 0 256a224 224 0 1 1 448 0z" />
+        </svg>
     </template>
 
     <div class="app max-width">
@@ -35,7 +41,7 @@
 
         <main class="main">
 
-            <section class="main__page main__page-active" aria-hidden="false">
+            <section class="main__page start-menu main__page-active" aria-hidden="false">
 
                 <button class="pushable" data-id="play-dom-match" data-default-enabled data-default-focus>
                     <span class="pushable__shadow"></span>
@@ -51,13 +57,14 @@
 
             </section>
 
-            <section class="main__page" aria-hidden="true">
+            <section class="main__page game-type-menu" aria-hidden="true">
 
                 <h2 class="text-glow">Choose a game type</h2>
 
                 <menu class="types-menu" data-id="game-type">
 
-                    <button class="pushable" data-id="PLAYER_VS_PLAYER" disabled data-default-enabled data-default-focus>
+                    <button class="pushable" data-id="PLAYER_VS_PLAYER" disabled data-default-enabled
+                        data-default-focus>
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
                         <span class="pushable__label">Player VS Player</span>
@@ -79,7 +86,7 @@
 
             </section>
 
-            <section class="main__page" aria-hidden="true">
+            <section class="main__page bot-difficulty-menu" aria-hidden="true">
 
                 <h2 class="text-glow">Choose a bot difficulty</h2>
 
@@ -107,14 +114,15 @@
 
             </section>
 
-            <section class="main__page" aria-hidden="true">
+            <section class="main__page name-form" aria-hidden="true">
 
                 <h2 class="text-glow">Enter name</h2>
 
                 <form class="form" autocomplete="off">
 
                     <div class="form__control">
-                        <input type="text" name="p1" id="p1" placeholder="" disabled data-default-enabled data-default-focus>
+                        <input type="text" name="p1" id="p1" placeholder="" disabled data-default-enabled
+                            data-default-focus>
                         <label for="p1">Player&nbsp;(&nbsp;X&nbsp;)</label>
                     </div>
 
@@ -135,9 +143,9 @@
 
             <section class="main__page" aria-hidden="true">
 
-                <ul class="game-score">
-                
-                    <li class="game-score__player" data-psymbol="X">
+                <ul class="game-score visible">
+
+                    <li class="game-score__player current" data-psymbol="X">
                         <p class="name">Player ( X )</p>
                         <strong class="score">0</strong>
                     </li>
@@ -202,7 +210,12 @@
                     <button class="pushable" data-id="return-action" data-default-enabled disabled>
                         <span class="pushable__shadow"></span>
                         <span class="pushable__edge"></span>
-                        <span class="pushable__label">&lt; Main Menu</span>
+                        <span class="pushable__label">
+                            <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19.285 12h-8.012M16.51 15.636 20 12l-3.49-3.636M13.454 7V4H4v16h9.454v-3"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            Main&nbsp;Menu</span>
                     </button>
 
                     <button class="pushable" data-id="start-action" data-default-enabled disabled data-default-focus>
