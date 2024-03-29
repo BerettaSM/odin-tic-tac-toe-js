@@ -170,6 +170,7 @@ a:active::before {
     position: relative;
     flex: auto;
     width: 100%;
+    overflow: hidden;
 }
 
 .main__page {
@@ -391,6 +392,10 @@ a:active::before {
     height: 100%;
     width: 100%;
     inset: 0;
+    background-color: transparent;
+}
+
+.game-board__winner-line.visible::after {
     background-color: var(--COLOR_TERTIARY);
 }
 
@@ -532,10 +537,6 @@ a:active::before {
             opacity 200ms ease-out, filter 200ms ease-out;
     }
 
-    .app .main {
-        overflow: hidden;
-    }
-
     .main__page {
         transform: translateX(calc(var(--i) * 100%));
         transition: transform 500ms ease-out, opacity 700ms ease-in-out;
@@ -657,10 +658,12 @@ a:active::before {
 }
 
 @keyframes blink {
-    0%, 100% {
+    0%,
+    100% {
         background: transparent;
     }
-    50%, 75% {
+    50%,
+    75% {
         background-color: var(--COLOR_TERTIARY);
     }
 }
