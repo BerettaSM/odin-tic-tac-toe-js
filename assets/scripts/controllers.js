@@ -87,7 +87,9 @@ var ConsoleGameController = (function hideInternals() {
 
         for (let { name, symbol } of gameService.players) {
             var isCurrentPlayer = gameService.currentPlayer.symbol === symbol;
-            str += `${isCurrentPlayer ? ' TURN --> ' : '          '}${name} ( ${symbol} ): ${gameService.scores[symbol]} points\n`;
+            str += `${
+                isCurrentPlayer ? ' TURN --> ' : '          '
+            }${name} ( ${symbol} ): ${gameService.scores[symbol]} points\n`;
         }
 
         str += '\n  -------------\n';
@@ -126,11 +128,14 @@ var ConsoleGameController = (function hideInternals() {
         var botDifficulty;
         // if game includes a bot, ask difficulty
         if (gameType !== GameTypes.PLAYER_VS_PLAYER) {
-            botDifficulty = askForOption('Choose a bot difficulty, or cancel to abort.', {
-                Easy: BotDifficulty.EASY,
-                Medium: BotDifficulty.MEDIUM,
-                Hard: BotDifficulty.HARD,
-            });
+            botDifficulty = askForOption(
+                'Choose a bot difficulty, or cancel to abort.',
+                {
+                    Easy: BotDifficulty.EASY,
+                    Medium: BotDifficulty.MEDIUM,
+                    Hard: BotDifficulty.HARD,
+                }
+            );
         }
         // collect names (Only appliable to players)
         var P1Name, P2Name;
@@ -155,7 +160,7 @@ var ConsoleGameController = (function hideInternals() {
         while (true) {
             input = window.prompt(description);
 
-            if(input == null) {
+            if (input == null) {
                 // User hit cancel.
                 throw new Error('cancelled');
             }
@@ -187,10 +192,9 @@ var ConsoleGameController = (function hideInternals() {
         var choice, input;
 
         while (true) {
-            
             input = window.prompt(menu);
 
-            if(input == null) {
+            if (input == null) {
                 // User hit cancel.
                 throw new Error('cancelled');
             }
@@ -232,6 +236,7 @@ var DOMGameController = (function hideInternals() {
     function Controller(gameService) {
         var _resetButtonEle = null;
         var _gameBoardEle = null;
+        var _scoreBoardEle = null;
         var _xSymbol = null;
         var _oSymbol = null;
 
@@ -250,7 +255,13 @@ var DOMGameController = (function hideInternals() {
 
         async function init(config) {
             var {
-                domElements: { resetButton, board, xSymbol, oSymbol },
+                domElements: {
+                    resetButton,
+                    gameBoard,
+                    scoreBoard,
+                    xSymbol,
+                    oSymbol,
+                },
                 ...serviceConfig
             } = config;
 
@@ -262,17 +273,18 @@ var DOMGameController = (function hideInternals() {
             _xSymbol = xSymbol;
             _oSymbol = oSymbol;
 
+            _scoreBoardEle = scoreBoard;
+
             _resetButtonEle = resetButton;
             _resetButtonEle.addEventListener('click', handleResetClick);
 
-            _gameBoardEle = board;
+            _gameBoardEle = gameBoard;
             _gameBoardEle.addEventListener('click', handleCellClick);
 
+            window.addEventListener(GameEvents.GAME_START, onGameStart);
             window.addEventListener(GameEvents.GAME_OVER, onGameOver);
-            window.addEventListener(
-                GameEvents.BOT_DELAY_START,
-                onBotDelayStart
-            );
+            window.addEventListener(GameEvents.GAME_NEW_TURN, onGameNewTurn);
+            window.addEventListener(GameEvents.BOT_DELAY_START, onBotDelayStart);
             window.addEventListener(GameEvents.BOT_DELAY_END, onBotDelayEnd);
 
             updateUI();
@@ -359,11 +371,10 @@ var DOMGameController = (function hideInternals() {
             _resetButtonEle.removeEventListener('click', handleResetClick);
             _gameBoardEle.removeEventListener('click', handleCellClick);
 
+            window.removeEventListener(GameEvents.GAME_START, onGameStart);
             window.removeEventListener(GameEvents.GAME_OVER, onGameOver);
-            window.removeEventListener(
-                GameEvents.BOT_DELAY_START,
-                onBotDelayStart
-            );
+            window.removeEventListener(GameEvents.GAME_NEW_TURN, onGameNewTurn);
+            window.removeEventListener(GameEvents.BOT_DELAY_START, onBotDelayStart);
             window.removeEventListener(GameEvents.BOT_DELAY_END, onBotDelayEnd);
 
             var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
@@ -390,19 +401,69 @@ var DOMGameController = (function hideInternals() {
 
         // ============= EVENTS ================
 
+        function onGameStart() {
+            _resetButtonEle.disabled = true;
+            _resetButtonEle.querySelector('.pushable__label').textContent =
+                'Playing...';
+
+            var { name, symbol } = gameService.currentPlayer;
+
+            window.dispatchEvent(
+                new CustomEvent(GameEvents.GAME_NEW_TURN, {
+                    detail: {
+                        player: name,
+                        symbol,
+                    },
+                })
+            );
+        }
+
         function onGameOver(event) {
-            var { winningRow } = event.detail;
+            if (winner) {
+                scoreBoard.querySelector(
+                    `[data-psymbol="${winner.symbol}"] .score`
+                ).textContent = newScore;
+            }
+
+            var { winner, winningRow, newScore } = event.detail;
             // mark the winning row, if any
             if (winningRow) {
                 var row = _gameBoardEle.querySelector(
                     `[data-row-id="${winningRow}"]`
                 );
                 row.classList.add('visible');
+                // enabled rematch button
+                _resetButtonEle.disabled = false;
+                _resetButtonEle.querySelector('.pushable__label').textContent =
+                    'Rematch';
+                _scoreBoardEle.querySelector(
+                    `[data-psymbol="${winner.symbol}"] .score`
+                ).textContent = newScore;
+            } else {
+                _gameBoardEle.classList.add('tie');
+
+                setTimeout(function () {
+                    _gameBoardEle.classList.remove('tie');
+                    _resetButtonEle.disabled = false;
+                    _resetButtonEle.querySelector(
+                        '.pushable__label'
+                    ).textContent = 'Rematch';
+                }, 2000);
+            }
+        }
+
+        function onGameNewTurn(event) {
+            var { symbol } = event.detail;
+
+            for (let pInfo of _scoreBoardEle.querySelectorAll(
+                '.game-score__player'
+            )) {
+                pInfo.classList.remove('current');
             }
 
-            // enabled rematch button
-            _resetButtonEle.disabled = false;
-            // update scores and info on ui
+            _scoreBoardEle
+                .querySelector(`[data-psymbol="${symbol}"]`)
+                .classList.add('current');
         }
 
         function onBotDelayStart(event) {

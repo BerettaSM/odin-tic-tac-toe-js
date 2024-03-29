@@ -38,7 +38,7 @@ var App = (function hideInternals() {
     var form = main.querySelector('form.form');
 
     // Board page
-    var board = main.querySelector('[data-id="board"]');
+    var gameBoard = main.querySelector('[data-id="board"]');
     var scoreBoard = main.querySelector('.game-score');
     var startButton = main.querySelector('button[data-id="start-action"]');
     var resetButton = main.querySelector('button[data-id="reset-action"]');
@@ -269,7 +269,8 @@ var App = (function hideInternals() {
                 botArtificialPlayDelayRange: [1500, 3500],
                 domElements: {
                     resetButton,
-                    board,
+                    gameBoard,
+                    scoreBoard,
                     xSymbol: xSymbolSvg,
                     oSymbol: oSymbolSvg,
                 },
@@ -302,57 +303,6 @@ var App = (function hideInternals() {
             gameController?.cleanUp();
             changeToPage(0);
         });
-
-        window.addEventListener(GameEvents.GAME_START, function onGameStart() {
-            resetButton.disabled = true;
-            resetButton.querySelector('.pushable__label').textContent =
-                'Playing...';
-
-            var { name, symbol } = gameService.currentPlayer;
-
-            window.dispatchEvent(
-                new CustomEvent(GameEvents.GAME_NEW_TURN, {
-                    detail: {
-                        player: name,
-                        symbol,
-                    },
-                })
-            );
-        });
-
-        window.addEventListener(
-            GameEvents.GAME_OVER,
-            function updateUiSections(event) {
-                var { winner, newScore } = event.detail;
-
-                resetButton.disabled = false;
-                resetButton.querySelector('.pushable__label').textContent =
-                    'Rematch';
-
-                if (winner) {
-                    scoreBoard.querySelector(
-                        `[data-psymbol="${winner.symbol}"] .score`
-                    ).textContent = newScore;
-                }
-            }
-        );
-
-        window.addEventListener(
-            GameEvents.GAME_NEW_TURN,
-            function updateActivePlayer(event) {
-                var { symbol } = event.detail;
-
-                for (let pInfo of scoreBoard.querySelectorAll(
-                    '.game-score__player'
-                )) {
-                    pInfo.classList.remove('current');
-                }
-
-                scoreBoard
-                    .querySelector(`[data-psymbol="${symbol}"]`)
-                    .classList.add('current');
-            }
-        );
     }
 
     function adjustNamesForm() {
