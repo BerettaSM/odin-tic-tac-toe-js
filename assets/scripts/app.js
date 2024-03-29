@@ -1,8 +1,6 @@
 'use strict';
 
 var App = (function hideInternals() {
-    const ACTIVE_PAGE_CLASS = 'main__page-active';
-
     var { GameTypes } = TicTacToe;
 
     var state = {
@@ -22,17 +20,13 @@ var App = (function hideInternals() {
 
     // Main page
     var playDomMatchButton = main.querySelector('[data-id="play-dom-match"]');
-    var playConsoleMatchButton = main.querySelector(
-        '[data-id="play-console-match"]'
-    );
+    var playConsoleMatchButton = main.querySelector('[data-id="play-console-match"]');
 
     // Game type page
     var typesMenu = main.querySelector('menu[data-id="game-type"]');
 
     // Bot difficulty page
-    var botDifficultyMenu = main.querySelector(
-        'menu[data-id="bot-difficulty"]'
-    );
+    var botDifficultyMenu = main.querySelector('menu[data-id="bot-difficulty"]');
 
     // Names form page
     var form = main.querySelector('form.form');
@@ -74,7 +68,7 @@ var App = (function hideInternals() {
         }
 
         var prevPage = pages[state.currentPage];
-        prevPage.classList.remove(ACTIVE_PAGE_CLASS);
+        prevPage.classList.remove('main__page-active');
 
         // Make the previous page invisible to screen readers
         prevPage.setAttribute('aria-hidden', true);
@@ -85,7 +79,7 @@ var App = (function hideInternals() {
         });
 
         var curPage = pages[pageNumber];
-        curPage.classList.add(ACTIVE_PAGE_CLASS);
+        curPage.classList.add('main__page-active');
 
         // Make the current page visible to screen readers
         curPage.setAttribute('aria-hidden', false);

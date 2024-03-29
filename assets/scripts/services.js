@@ -9,7 +9,7 @@ var GameService = (function hideInternals() {
         gameType: GameTypes.PLAYER_VS_PLAYER,
         P1Name: 'Player 1',
         P2Name: 'Player 2',
-        eventTarget: document.createElement('div'), // Just a dummy event in case one was not passed in.
+        eventTarget: document.createElement('div'), // Just a dummy event target in case one was not passed in.
     };
 
     return GameService;

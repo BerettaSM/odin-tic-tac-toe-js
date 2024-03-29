@@ -388,12 +388,6 @@ a:active::before {
     border-radius: 9px;
     height: var(--BOARD_SIZE);
     width: var(--BOARD_SIZE);
-
-    /* display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
-    gap: 5px;
-    padding: 5px; */
     isolation: isolate;
 }
 
@@ -556,7 +550,6 @@ a:active::before {
     }
 
     .game-actions {
-        /* padding-block-start: 16px; */
         flex: 1;
         flex-direction: column-reverse;
         justify-content: flex-end;
@@ -735,9 +728,9 @@ a:active::before {
         transform: translateX(0);
     }
 
-    .game-score__player:first-of-type,
-    .game-score__player:last-of-type {
-        transition: transform 450ms ease-out;
+    .game-score__player {
+        transition: transform 450ms ease-out, background-color 350ms ease-in-out,
+            border-color 350ms ease-in-out;
     }
 
     .game-score__player:first-of-type {
