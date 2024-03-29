@@ -318,6 +318,16 @@ a:active::before {
     justify-content: center;
 }
 
+.game-board__cell .symbol {
+    max-width: 65%;
+    max-height: 65%;
+    margin: auto;
+}
+
+.game-board__cell .symbol path {
+    fill: var(--COLOR_PRIMARY);
+}
+
 .cell-button {
     position: absolute;
     height: 100%;

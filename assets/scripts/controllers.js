@@ -228,6 +228,8 @@ var DOMGameController = (function hideInternals() {
     function Controller(gameService) {
         var _resetButtonEle = null;
         var _gameBoardEle = null;
+        var _xSymbol = null;
+        var _oSymbol = null;
 
         var _signal = {
             cancelled: false,
@@ -244,7 +246,7 @@ var DOMGameController = (function hideInternals() {
 
         async function init(config) {
             var {
-                domElements: { resetButton, board },
+                domElements: { resetButton, board, xSymbol, oSymbol },
                 ...serviceConfig
             } = config;
 
@@ -252,6 +254,9 @@ var DOMGameController = (function hideInternals() {
                 ...serviceConfig,
                 eventTarget: window,
             });
+
+            _xSymbol = xSymbol;
+            _oSymbol = oSymbol;
 
             _resetButtonEle = resetButton;
             _resetButtonEle.addEventListener('click', handleResetClick);
@@ -289,6 +294,7 @@ var DOMGameController = (function hideInternals() {
             var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
             cellButtons.forEach(function removeBlinkClass(button) {
                 button.classList.remove('blink');
+                button.innerHTML = '';
             });
             gameService.rematch();
             updateUI();
@@ -305,10 +311,12 @@ var DOMGameController = (function hideInternals() {
 
             cellButtons.forEach(function updateCell(button) {
                 var cellID = button.dataset.cell;
-                button.textContent = boardState[cellID];
                 var isEmpty = boardState[cellID] === ' ';
+                if (!isEmpty && button.children.length === 0) {
+                    button.appendChild(getCellSymbol(boardState[cellID]));
+                    button.classList.add('blink');
+                }
                 button.disabled = shouldDisableAllButtons || !isEmpty;
-                button.textContent.trim() && button.classList.add('blink');
             });
         }
 
@@ -358,11 +366,22 @@ var DOMGameController = (function hideInternals() {
 
             cellButtons.forEach(function disableButton(button) {
                 button.disabled = true;
-                button.textContent = '';
+                button.innerHTML = '';
                 button.classList.remove('blink');
             });
 
             hideWinningRows();
+        }
+
+        function getCellSymbol(value) {
+            switch (value) {
+                case 'X':
+                    return _xSymbol.cloneNode(true);
+                case 'O':
+                    return _oSymbol.cloneNode(true);
+                default:
+                    return ' ';
+            }
         }
 
         // ============= EVENTS ================

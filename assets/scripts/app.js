@@ -44,6 +44,14 @@ var App = (function hideInternals() {
     var resetButton = main.querySelector('button[data-id="reset-action"]');
     var returnButton = main.querySelector('button[data-id="return-action"]');
 
+    // Symbols
+    var xSymbolSvg = document
+        .querySelector('template[data-id="symbol-x-template"]')
+        .content.cloneNode(true).children[0];
+    var oSymbolSvg = document
+        .querySelector('template[data-id="symbol-o-template"]')
+        .content.cloneNode(true).children[0];
+
     var publicAPI = {
         init,
     };
@@ -216,6 +224,8 @@ var App = (function hideInternals() {
                 domElements: {
                     resetButton,
                     board,
+                    xSymbol: xSymbolSvg,
+                    oSymbol: oSymbolSvg,
                 },
             });
 
@@ -223,8 +233,12 @@ var App = (function hideInternals() {
 
             gameService.players.forEach(function updatePlayerOnUI(player) {
                 var { name, symbol } = player;
-                var pInfo = scoreBoard.querySelector(`[data-psymbol="${symbol}"]`);
-                var pName = name.includes(`( ${symbol} )`) ? name : `${name} ( ${symbol} )`;
+                var pInfo = scoreBoard.querySelector(
+                    `[data-psymbol="${symbol}"]`
+                );
+                var pName = name.includes(`( ${symbol} )`)
+                    ? name
+                    : `${name} ( ${symbol} )`;
                 pInfo.querySelector('.name').textContent = pName;
                 pInfo.querySelector('.score').textContent = '0';
             });
@@ -236,12 +250,12 @@ var App = (function hideInternals() {
             startButton.disabled = false;
             startButton.classList.remove('hidden');
             resetButton.classList.add('hidden');
-            resetButton.querySelector('.pushable__label').textContent = 'Rematch';
+            resetButton.querySelector('.pushable__label').textContent =
+                'Rematch';
             scoreBoard.classList.remove('visible');
             gameController?.cleanUp();
             changeToPage(0);
         });
-
 
         window.addEventListener(GameEvents.GAME_START, function onGameStart() {
             resetButton.disabled = true;
@@ -250,12 +264,14 @@ var App = (function hideInternals() {
 
             var { name, symbol } = gameService.currentPlayer;
 
-            window.dispatchEvent(new CustomEvent(GameEvents.GAME_NEW_TURN, {
-                detail: {
-                    player: name,
-                    symbol
-                },
-            }));
+            window.dispatchEvent(
+                new CustomEvent(GameEvents.GAME_NEW_TURN, {
+                    detail: {
+                        player: name,
+                        symbol,
+                    },
+                })
+            );
         });
 
         window.addEventListener(
@@ -267,22 +283,30 @@ var App = (function hideInternals() {
                 resetButton.querySelector('.pushable__label').textContent =
                     'Rematch';
 
-                if(winner) {
-                    scoreBoard.querySelector(`[data-psymbol="${winner.symbol}"] .score`).textContent = newScore;
+                if (winner) {
+                    scoreBoard.querySelector(
+                        `[data-psymbol="${winner.symbol}"] .score`
+                    ).textContent = newScore;
                 }
             }
         );
 
-        window.addEventListener(GameEvents.GAME_NEW_TURN, function updateActivePlayer(event) {
-            var { symbol } = event.detail;
+        window.addEventListener(
+            GameEvents.GAME_NEW_TURN,
+            function updateActivePlayer(event) {
+                var { symbol } = event.detail;
 
-            for(let pInfo of scoreBoard.querySelectorAll('.game-score__player')) {
-                pInfo.classList.remove('current');
+                for (let pInfo of scoreBoard.querySelectorAll(
+                    '.game-score__player'
+                )) {
+                    pInfo.classList.remove('current');
+                }
+
+                scoreBoard
+                    .querySelector(`[data-psymbol="${symbol}"]`)
+                    .classList.add('current');
             }
-  
-            scoreBoard.querySelector(`[data-psymbol="${symbol}"]`)
-                .classList.add('current');
-        })
+        );
     }
 
     function adjustNamesForm() {
