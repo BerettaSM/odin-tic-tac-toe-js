@@ -158,49 +158,57 @@
                 </ul>
 
                 <div class="game-board" data-id="board">
+                    
+                    <div class="game-board__cell-wrapper">
+                        <div class="game-board__cell">
+                            <button class="cell-button" data-cell="A1" disabled></button>
+                        </div>
 
-                    <div class="game-board__cell">
-                        <button class="cell-button" data-cell="A1" disabled></button>
+                        <div class="game-board__cell">
+                            <button class="cell-button" data-cell="A2" disabled></button>
+                            <div class="game-board__winner-line" data-row-id="horizontal-top"></div>
+                        </div>
+
+                        <div class="game-board__cell">
+                            <button class="cell-button" data-cell="A3" disabled></button>
+                        </div>
+
+                        <div class="game-board__cell">
+                            <button class="cell-button" data-cell="B1" disabled></button>
+                            <div class="game-board__winner-line vertical" data-row-id="vertical-left"></div>
+                        </div>
+
+                        <div class="game-board__cell">
+                            <button class="cell-button" data-cell="B2" disabled></button>
+                            <div class="game-board__winner-line" data-row-id="horizontal-center"></div>
+                            <div class="game-board__winner-line vertical" data-row-id="vertical-center"></div>
+                            <div class="game-board__winner-line diagonal" data-row-id="diagonal-left"></div>
+                            <div class="game-board__winner-line diagonal right" data-row-id="diagonal-right"></div>
+                        </div>
+
+                        <div class="game-board__cell">
+                            <button class="cell-button" data-cell="B3" disabled></button>
+                            <div class="game-board__winner-line vertical" data-row-id="vertical-right"></div>
+                        </div>
+
+                        <div class="game-board__cell">
+                            <button class="cell-button" data-cell="C1" disabled></button>
+                        </div>
+
+                        <div class="game-board__cell">
+                            <button class="cell-button" data-cell="C2" disabled></button>
+                            <div class="game-board__winner-line" data-row-id="horizontal-bottom"></div>
+                        </div>
+
+                        <div class="game-board__cell">
+                            <button class="cell-button" data-cell="C3" disabled></button>
+                        </div>
                     </div>
 
-                    <div class="game-board__cell">
-                        <button class="cell-button" data-cell="A2" disabled></button>
-                        <div class="game-board__winner-line" data-row-id="horizontal-top"></div>
-                    </div>
+                    <div class="game-board__tie-message" aria-hidden="true">
 
-                    <div class="game-board__cell">
-                        <button class="cell-button" data-cell="A3" disabled></button>
-                    </div>
+                        <h3>TIE</h3>
 
-                    <div class="game-board__cell">
-                        <button class="cell-button" data-cell="B1" disabled></button>
-                        <div class="game-board__winner-line vertical" data-row-id="vertical-left"></div>
-                    </div>
-
-                    <div class="game-board__cell">
-                        <button class="cell-button" data-cell="B2" disabled></button>
-                        <div class="game-board__winner-line" data-row-id="horizontal-center"></div>
-                        <div class="game-board__winner-line vertical" data-row-id="vertical-center"></div>
-                        <div class="game-board__winner-line diagonal" data-row-id="diagonal-left"></div>
-                        <div class="game-board__winner-line diagonal right" data-row-id="diagonal-right"></div>
-                    </div>
-
-                    <div class="game-board__cell">
-                        <button class="cell-button" data-cell="B3" disabled></button>
-                        <div class="game-board__winner-line vertical" data-row-id="vertical-right"></div>
-                    </div>
-
-                    <div class="game-board__cell">
-                        <button class="cell-button" data-cell="C1" disabled></button>
-                    </div>
-
-                    <div class="game-board__cell">
-                        <button class="cell-button" data-cell="C2" disabled></button>
-                        <div class="game-board__winner-line" data-row-id="horizontal-bottom"></div>
-                    </div>
-
-                    <div class="game-board__cell">
-                        <button class="cell-button" data-cell="C3" disabled></button>
                     </div>
 
                 </div>
