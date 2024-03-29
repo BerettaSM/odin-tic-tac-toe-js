@@ -1,13 +1,17 @@
 'use strict';
 
 var ConsoleGameController = (function hideInternals() {
-    var { BotDifficulty, GameTypes } = TicTacToe;
+    var { BotDifficulty, GameTypes, parseToBoardPosition } = TicTacToe;
 
     return Controller;
 
     // =====================================
 
     function Controller(gameService) {
+        var _signal = {
+            cancelled: false,
+        };
+
         var instance = {
             init,
         };
@@ -17,13 +21,13 @@ var ConsoleGameController = (function hideInternals() {
         // =====================================
 
         function init() {
-            _init(gameService);
+            _init(gameService, _signal);
         }
     }
 
     // =========== INTERNALS ===============
 
-    async function _init(gameService) {
+    async function _init(gameService, signal) {
         // Warn the player the game will be played through the browser console
         window.alert(
             'This TicTacToe game will be played through the browser console.\n\n' +
@@ -61,8 +65,9 @@ var ConsoleGameController = (function hideInternals() {
                 try {
                     // The tentative play gets internally ignored
                     // if the current player is a bot.
-                    await gameService.playTurn(tentativePlay);
+                    await gameService.playTurn(tentativePlay, signal);
                 } catch (e) {
+                    console.log(e);
                     if (e instanceof Error && e.name === 'TicTacToeError') {
                         window.alert(e.message);
                     } else {
@@ -99,10 +104,8 @@ var ConsoleGameController = (function hideInternals() {
         for (let i = 0; i < 3; i++) {
             str += String.fromCharCode(i + 65);
             str += ' | ';
-            // TODO: Fix how the board is iterated.
-            str += gameService.board
+            str += Object.values(gameService.board)
                 .slice(i * 3, i * 3 + 3)
-                .map((entry) => entry.value)
                 .join(' | ');
             str += ' |\n';
             str += '  -------------\n';

@@ -148,6 +148,14 @@ var App = (function hideInternals() {
     }
 
     function setupListeners() {
+        playConsoleMatchButton.addEventListener('click', function startConsoleMatch() {
+
+            var consoleController = new ConsoleGameController(new GameService());
+
+            consoleController.init();
+
+        });
+
         playDomMatchButton.addEventListener(
             'click',
             function moveToSecondPage() {
