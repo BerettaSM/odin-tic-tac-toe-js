@@ -230,15 +230,20 @@ var ConsoleGameController = (function hideInternals() {
 })();
 
 var DOMGameController = (function hideInternals() {
+    var { GameTypes } = TicTacToe;
+
     return Controller;
 
     // =====================================
 
     function Controller(gameService) {
+        var _gameType = null;
         var _resetButtonEle = null;
         var _gameBoardEle = null;
         var _scoreBoardEle = null;
         var _lastHoverSymbol;
+        var _autoRestartEvent;
+        var _tieMessageEvent;
         var _xSymbol = null;
         var _oSymbol = null;
 
@@ -272,6 +277,8 @@ var DOMGameController = (function hideInternals() {
                 eventTarget: window,
             });
 
+            _gameType = serviceConfig.gameType;
+
             _xSymbol = xSymbol;
             _oSymbol = oSymbol;
 
@@ -300,7 +307,7 @@ var DOMGameController = (function hideInternals() {
             var shouldDisableAllButtons =
                 gameService.isGameOver || 'play' in gameService.currentPlayer;
 
-            if(_lastHoverSymbol) {
+            if (_lastHoverSymbol) {
                 _lastHoverSymbol.remove();
             }
 
@@ -325,9 +332,7 @@ var DOMGameController = (function hideInternals() {
                     updateUI();
                     await checkForBot();
                 } catch (e) {
-                    if (e instanceof Error && e.message == 'cancelled') {
-                        console.log('Bot play was cancelled.');
-                    } else {
+                    if (!(e instanceof Error && e.message == 'cancelled')) {
                         throw e;
                     }
                 }
@@ -346,6 +351,11 @@ var DOMGameController = (function hideInternals() {
 
         function cleanUp() {
             _signal.cancelled = true;
+
+            clearTimeout(_tieMessageEvent);
+            clearTimeout(_autoRestartEvent);
+
+            hideTieMessage();
 
             _resetButtonEle.removeEventListener('click', handleResetClick);
             _gameBoardEle.removeEventListener('click', handleCellClick);
@@ -393,6 +403,7 @@ var DOMGameController = (function hideInternals() {
         }
 
         async function handleResetClick() {
+            clearTimeout(_autoRestartEvent);
             _resetButtonEle.disabled = true;
             var cellButtons = _gameBoardEle.querySelectorAll('[data-cell]');
             cellButtons.forEach(function removeBlinkClass(button) {
@@ -407,10 +418,14 @@ var DOMGameController = (function hideInternals() {
 
         function onBoardHover(event) {
             var cellID = event.target.dataset.cell;
-            if(_lastHoverSymbol) {
+            if (_lastHoverSymbol) {
                 _lastHoverSymbol.remove();
             }
-            if(!cellID || event.target.disabled || gameService.board[cellID] !== ' ') {
+            if (
+                !cellID ||
+                event.target.disabled ||
+                gameService.board[cellID] !== ' '
+            ) {
                 return;
             }
             _lastHoverSymbol = getCellSymbol(gameService.currentPlayer.symbol);
@@ -456,15 +471,16 @@ var DOMGameController = (function hideInternals() {
                 _scoreBoardEle.querySelector(
                     `[data-psymbol="${winner.symbol}"] .score`
                 ).textContent = newScore;
+                initiateAutoRestart(_gameType === GameTypes.BOT_VS_BOT ? 3 : 5);
             } else {
                 _gameBoardEle.classList.add('tie');
 
-                setTimeout(function () {
-                    _gameBoardEle.classList.remove('tie');
+                _tieMessageEvent = setTimeout(function () {
+                    hideTieMessage();
                     _resetButtonEle.disabled = false;
-                    _resetButtonEle.querySelector(
-                        '.pushable__label'
-                    ).textContent = 'Rematch';
+                    initiateAutoRestart(
+                        _gameType === GameTypes.BOT_VS_BOT ? 3 : 5
+                    );
                 }, 2000);
             }
         }
@@ -481,6 +497,29 @@ var DOMGameController = (function hideInternals() {
             _scoreBoardEle
                 .querySelector(`[data-psymbol="${symbol}"]`)
                 .classList.add('current');
+        }
+
+        // ============== UTILS ================
+
+        function initiateAutoRestart(countdown = 5) {
+            // In seconds
+            _resetButtonEle.querySelector(
+                '.pushable__label'
+            ).textContent = `Restarting in ${countdown}s...`;
+            _autoRestartEvent = setTimeout(function restart() {
+                if (countdown === 0) {
+                    _resetButtonEle.click();
+                    return;
+                } else {
+                    initiateAutoRestart(countdown - 1);
+                }
+            }, 1000);
+        }
+
+        function hideTieMessage() {
+            _gameBoardEle.classList.remove('tie');
+            _resetButtonEle.querySelector('.pushable__label').textContent =
+                'Rematch';
         }
     }
 })();
