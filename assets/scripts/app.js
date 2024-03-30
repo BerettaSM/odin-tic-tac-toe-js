@@ -3,6 +3,10 @@
 var App = (function hideInternals() {
     var { GameTypes } = TicTacToe;
 
+    var displayHowToPlayMessage = false;
+    var gameService;
+    var gameController;
+
     var state = {
         currentPage: 0,
         gameType: null,
@@ -149,165 +153,22 @@ var App = (function hideInternals() {
     }
 
     function setupListeners() {
-        var displayHowToPlayMessage = false;
+        playConsoleMatchButton.addEventListener('click', startConsoleMatch);
 
-        playConsoleMatchButton.addEventListener(
-            'click',
-            async function startConsoleMatch() {
-                if (!displayHowToPlayMessage) {
-                    window.alert(
-                        'This TicTacToe game will be played through the browser console.\n' +
-                            'Make sure to have it open the next time you click the play button.\n\n' +
-                            'Press CTRL + SHIFT + J on Google Chrome.\n' +
-                            'Press CTRL + SHIFT + I on Firefox.\n\n' +
-                            'Alternatively, search for the console option on settings.'
-                    );
-                    displayHowToPlayMessage = true;
-                    return;
-                }
+        playDomMatchButton.addEventListener('click', moveToSecondPage);
 
-                playConsoleMatchButton.disabled = true;
-                playDomMatchButton.disabled = true;
-                playConsoleMatchButton.querySelector(
-                    '.pushable__label'
-                ).textContent = 'Ongoing match on console...';
+        typesMenu.addEventListener('click', selectGameType);
 
-                try {
-                    await Utils.sleep(500);
-                    var consoleController = new ConsoleGameController(
-                        new GameService()
-                    );
-                    await consoleController.init();
-                } catch (e) {
-                    if (!(e instanceof Error && e.message === 'cancelled')) {
-                        throw e;
-                    }
-                } finally {
-                    playConsoleMatchButton.disabled = false;
-                    playDomMatchButton.disabled = false;
-                    playConsoleMatchButton.querySelector(
-                        '.pushable__label'
-                    ).textContent = 'Play a match (browser console)';
-                }
+        botDifficultyMenu.addEventListener('click', selectBotDifficulty);
 
-                console.clear();
-                console.log('Thanks for playing! :)');
-            }
-        );
+        form.addEventListener('submit', collectNames);
 
-        mainMenuButtons.forEach((button) => {
-            button.addEventListener('click', function returnToMainMenu() {
-                changeToPage(0);
-            });
-        });
+        startButton.addEventListener('click', startGame);
 
-        playDomMatchButton.addEventListener(
-            'click',
-            function moveToSecondPage() {
-                changeToPage(1);
-            }
-        );
-
-        typesMenu.addEventListener('click', function selectGameType(event) {
-            var button = event.target.closest('button[data-id]');
-            if (!button) {
-                // Click didn't occur on a button.
-                return;
-            }
-
-            var gameType = button.dataset.id;
-            state.gameType = gameType;
-
-            adjustNamesForm();
-
-            if (gameType !== GameTypes.PLAYER_VS_PLAYER) {
-                changeToPage(2);
-            } else {
-                changeToPage(3);
-            }
-        });
-
-        botDifficultyMenu.addEventListener(
-            'click',
-            function selectBotDifficulty(event) {
-                var button = event.target.closest('button[data-id]');
-                if (!button) {
-                    // Click didn't occur on a button.
-                    return;
-                }
-
-                var botDifficulty = button.dataset.id;
-                state.botDifficulty = botDifficulty;
-
-                if (state.gameType !== GameTypes.BOT_VS_BOT) {
-                    changeToPage(3);
-                } else {
-                    changeToPage(4);
-                }
-            }
-        );
-
-        form.addEventListener('submit', function collectNames(event) {
-            event.preventDefault();
-
-            var names = new FormData(event.target);
-            var P1Name = names.get('p1')?.trim() || 'Player ( X )';
-            var P2Name = names.get('p2')?.trim() || 'Player ( O )';
-
-            state.P1Name = P1Name;
-            state.P2Name = P2Name;
-
-            changeToPage(4);
-        });
-
-        var gameService;
-        var gameController;
-
-        startButton.addEventListener('click', function startGame() {
-            startButton.disabled = true;
-            startButton.classList.add('hidden');
-            resetButton.classList.remove('hidden');
-
-            gameService = new GameService();
-            gameController = new DOMGameController(gameService);
-
-            gameController.init({
-                ...state,
-                botArtificialPlayDelayRange: [1500, 3500],
-                domElements: {
-                    resetButton,
-                    gameBoard,
-                    scoreBoard,
-                    xSymbol: xSymbolSvg,
-                    oSymbol: oSymbolSvg,
-                },
-            });
-
-            window.dispatchEvent(new CustomEvent(GameEvents.GAME_START));
-
-            gameService.players.forEach(function updatePlayerOnUI(player) {
-                var { name, symbol } = player;
-                var pInfo = scoreBoard.querySelector(
-                    `[data-psymbol="${symbol}"]`
-                );
-                var pName = name.includes(`( ${symbol} )`)
-                    ? name
-                    : `${name} ( ${symbol} )`;
-                pInfo.querySelector('.name').textContent = pName;
-                pInfo.querySelector('.score').textContent = '0';
-            });
-
-            scoreBoard.classList.add('visible');
-        });
-
-        returnButton.addEventListener('click', function returnToMainMenu() {
-            startButton.disabled = false;
-            startButton.classList.remove('hidden');
-            resetButton.classList.add('hidden');
-            resetButton.querySelector('.pushable__label').textContent =
-                'Rematch';
-            scoreBoard.classList.remove('visible');
-            gameController?.cleanUp();
+        returnButton.addEventListener('click', exitGamePage);
+        
+        mainMenuButtons.forEach(function setupMainMenuButtonListener(button) {
+            button.addEventListener('click', returnToMainMenu);
         });
     }
 
@@ -322,6 +183,149 @@ var App = (function hideInternals() {
             p2NameInput.removeAttribute('data-default-enabled');
             p2FormControl.classList.add('hidden');
         }
+    }
+
+    // ============= EVENTS ================
+
+    function collectNames(event) {
+        event.preventDefault();
+
+        var names = new FormData(event.target);
+        var P1Name = names.get('p1')?.trim() || 'Player ( X )';
+        var P2Name = names.get('p2')?.trim() || 'Player ( O )';
+
+        state.P1Name = P1Name;
+        state.P2Name = P2Name;
+
+        changeToPage(4);
+    }
+
+    async function startConsoleMatch() {
+        if (!displayHowToPlayMessage) {
+            window.alert(
+                'This TicTacToe game will be played through the browser console.\n' +
+                    'Make sure to have it open the next time you click the play button.\n\n' +
+                    'Press CTRL + SHIFT + J on Google Chrome.\n' +
+                    'Press CTRL + SHIFT + I on Firefox.\n\n' +
+                    'Alternatively, search for the console option on settings.'
+            );
+            displayHowToPlayMessage = true;
+            return;
+        }
+
+        playConsoleMatchButton.disabled = true;
+        playDomMatchButton.disabled = true;
+        playConsoleMatchButton.querySelector('.pushable__label').textContent =
+            'Ongoing match on console...';
+
+        try {
+            await Utils.sleep(500);
+            var consoleController = new ConsoleGameController(
+                new GameService()
+            );
+            await consoleController.init();
+        } catch (e) {
+            if (!(e instanceof Error && e.message === 'cancelled')) {
+                throw e;
+            }
+        } finally {
+            playConsoleMatchButton.disabled = false;
+            playDomMatchButton.disabled = false;
+            playConsoleMatchButton.querySelector(
+                '.pushable__label'
+            ).textContent = 'Play a match (browser console)';
+        }
+
+        console.clear();
+        console.log('Thanks for playing! :)');
+    }
+
+    function returnToMainMenu() {
+        changeToPage(0);
+    }
+
+    function moveToSecondPage() {
+        changeToPage(1);
+    }
+
+    function selectBotDifficulty(event) {
+        var button = event.target.closest('button[data-id]');
+        if (!button) {
+            // Click didn't occur on a button.
+            return;
+        }
+
+        var botDifficulty = button.dataset.id;
+        state.botDifficulty = botDifficulty;
+
+        if (state.gameType !== GameTypes.BOT_VS_BOT) {
+            changeToPage(3);
+        } else {
+            changeToPage(4);
+        }
+    }
+
+    function selectGameType(event) {
+        var button = event.target.closest('button[data-id]');
+        if (!button) {
+            // Click didn't occur on a button.
+            return;
+        }
+
+        var gameType = button.dataset.id;
+        state.gameType = gameType;
+
+        adjustNamesForm();
+
+        if (gameType !== GameTypes.PLAYER_VS_PLAYER) {
+            changeToPage(2);
+        } else {
+            changeToPage(3);
+        }
+    }
+
+    function startGame() {
+        startButton.disabled = true;
+        startButton.classList.add('hidden');
+        resetButton.classList.remove('hidden');
+
+        gameService = new GameService();
+        gameController = new DOMGameController(gameService);
+
+        gameController.init({
+            ...state,
+            botArtificialPlayDelayRange: [1500, 3500],
+            domElements: {
+                resetButton,
+                gameBoard,
+                scoreBoard,
+                xSymbol: xSymbolSvg,
+                oSymbol: oSymbolSvg,
+            },
+        });
+
+        window.dispatchEvent(new CustomEvent(GameEvents.GAME_START));
+
+        gameService.players.forEach(function updatePlayerOnUI(player) {
+            var { name, symbol } = player;
+            var pInfo = scoreBoard.querySelector(`[data-psymbol="${symbol}"]`);
+            var pName = name.includes(`( ${symbol} )`)
+                ? name
+                : `${name} ( ${symbol} )`;
+            pInfo.querySelector('.name').textContent = pName;
+            pInfo.querySelector('.score').textContent = '0';
+        });
+
+        scoreBoard.classList.add('visible');
+    }
+
+    function exitGamePage() {
+        startButton.disabled = false;
+        startButton.classList.remove('hidden');
+        resetButton.classList.add('hidden');
+        resetButton.querySelector('.pushable__label').textContent = 'Rematch';
+        scoreBoard.classList.remove('visible');
+        gameController?.cleanUp();
     }
 })();
 
