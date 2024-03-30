@@ -535,17 +535,21 @@ a:active::before {
     flex-basis: calc(50% - 8px);
 }
 
-.game-actions > .pushable .pushable__label {
+.game-actions > .pushable.main-menu-button {
+    margin-block-start: 0;
+}
+
+.pushable .pushable__label {
     gap: 8px;
 }
 
-.game-actions > .pushable .icon {
+.pushable .icon {
     height: 30px;
     width: 30px;
     transform: rotateZ(0.5turn);
 }
 
-.game-actions > .pushable .icon path {
+.pushable .icon path {
     stroke: var(--TEXT_WHITE);
     fill: transparent;
 }
@@ -633,6 +637,39 @@ a:active::before {
     transform: translateY(-4px);
     width: 100%;
     height: 100%;
+}
+
+.pushable.main-menu-button {
+    margin-block-start: 32px;
+}
+
+.pushable.main-menu-button::before {
+    position: absolute;
+    content: '';
+    top: -5%;
+    left: 0;
+    height: 20%;
+    width: 100%;
+    backdrop-filter: blur(10px);
+}
+
+.pushable.main-menu-button .pushable__shadow {
+    background-color: transparent;
+}
+
+.pushable.main-menu-button .pushable__edge {
+    background: transparent;
+    border: 1px solid var(--COLOR_PRIMARY);
+}
+
+.pushable.main-menu-button .pushable__label {
+    background-color: transparent;
+    border: 1px solid var(--COLOR_PRIMARY);
+    color: var(--COLOR_PRIMARY);
+}
+
+.pushable.main-menu-button .icon path {
+    stroke: var(--COLOR_PRIMARY);
 }
 
 @media (max-width: 30rem) {

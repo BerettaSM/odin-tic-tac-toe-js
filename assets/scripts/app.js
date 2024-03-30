@@ -18,15 +18,22 @@ var App = (function hideInternals() {
         pages[i].style.setProperty('--i', i);
     }
 
+    // All over
+    var mainMenuButtons = main.querySelectorAll('.pushable.main-menu-button');
+
     // Main page
     var playDomMatchButton = main.querySelector('[data-id="play-dom-match"]');
-    var playConsoleMatchButton = main.querySelector('[data-id="play-console-match"]');
+    var playConsoleMatchButton = main.querySelector(
+        '[data-id="play-console-match"]'
+    );
 
     // Game type page
     var typesMenu = main.querySelector('menu[data-id="game-type"]');
 
     // Bot difficulty page
-    var botDifficultyMenu = main.querySelector('menu[data-id="bot-difficulty"]');
+    var botDifficultyMenu = main.querySelector(
+        'menu[data-id="bot-difficulty"]'
+    );
 
     // Names form page
     var form = main.querySelector('form.form');
@@ -188,6 +195,12 @@ var App = (function hideInternals() {
             }
         );
 
+        mainMenuButtons.forEach((button) => {
+            button.addEventListener('click', function returnToMainMenu() {
+                changeToPage(0);
+            });
+        });
+
         playDomMatchButton.addEventListener(
             'click',
             function moveToSecondPage() {
@@ -295,7 +308,6 @@ var App = (function hideInternals() {
                 'Rematch';
             scoreBoard.classList.remove('visible');
             gameController?.cleanUp();
-            changeToPage(0);
         });
     }
 
