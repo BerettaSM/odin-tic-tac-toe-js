@@ -166,10 +166,12 @@ var App = (function hideInternals() {
         startButton.addEventListener('click', startGame);
 
         returnButton.addEventListener('click', exitGamePage);
-        
+
         mainMenuButtons.forEach(function setupMainMenuButtonListener(button) {
             button.addEventListener('click', returnToMainMenu);
         });
+
+        window.addEventListener('keydown', onEscapeKeyDown);
     }
 
     function adjustNamesForm() {
@@ -198,6 +200,78 @@ var App = (function hideInternals() {
         state.P2Name = P2Name;
 
         changeToPage(4);
+    }
+
+    function exitGamePage() {
+        startButton.disabled = false;
+        startButton.classList.remove('hidden');
+        resetButton.classList.add('hidden');
+        resetButton.querySelector('.pushable__label').textContent = 'Rematch';
+        scoreBoard.classList.remove('visible');
+        gameController?.cleanUp();
+    }
+
+    function moveToSecondPage() {
+        changeToPage(1);
+    }
+
+    function onEscapeKeyDown(event) {
+        if (event.key !== 'Escape') {
+            return;
+        }
+
+        // Detect if there's a return to main menu button on
+        // active page.
+        var activePage = pages[state.currentPage];
+        var mainMenuButton = activePage.querySelector(
+            '.main-menu-button:not(:disabled)'
+        );
+
+        if(!mainMenuButton) {
+            return;
+        }
+
+        mainMenuButton.click();
+    }
+
+    function returnToMainMenu() {
+        changeToPage(0);
+    }
+
+    function selectBotDifficulty(event) {
+        var button = event.target.closest('button[data-id]');
+        if (!button) {
+            // Click didn't occur on a button.
+            return;
+        }
+
+        var botDifficulty = button.dataset.id;
+        state.botDifficulty = botDifficulty;
+
+        if (state.gameType !== GameTypes.BOT_VS_BOT) {
+            changeToPage(3);
+        } else {
+            changeToPage(4);
+        }
+    }
+
+    function selectGameType(event) {
+        var button = event.target.closest('button[data-id]');
+        if (!button) {
+            // Click didn't occur on a button.
+            return;
+        }
+
+        var gameType = button.dataset.id;
+        state.gameType = gameType;
+
+        adjustNamesForm();
+
+        if (gameType !== GameTypes.PLAYER_VS_PLAYER) {
+            changeToPage(2);
+        } else {
+            changeToPage(3);
+        }
     }
 
     async function startConsoleMatch() {
@@ -240,50 +314,6 @@ var App = (function hideInternals() {
         console.log('Thanks for playing! :)');
     }
 
-    function returnToMainMenu() {
-        changeToPage(0);
-    }
-
-    function moveToSecondPage() {
-        changeToPage(1);
-    }
-
-    function selectBotDifficulty(event) {
-        var button = event.target.closest('button[data-id]');
-        if (!button) {
-            // Click didn't occur on a button.
-            return;
-        }
-
-        var botDifficulty = button.dataset.id;
-        state.botDifficulty = botDifficulty;
-
-        if (state.gameType !== GameTypes.BOT_VS_BOT) {
-            changeToPage(3);
-        } else {
-            changeToPage(4);
-        }
-    }
-
-    function selectGameType(event) {
-        var button = event.target.closest('button[data-id]');
-        if (!button) {
-            // Click didn't occur on a button.
-            return;
-        }
-
-        var gameType = button.dataset.id;
-        state.gameType = gameType;
-
-        adjustNamesForm();
-
-        if (gameType !== GameTypes.PLAYER_VS_PLAYER) {
-            changeToPage(2);
-        } else {
-            changeToPage(3);
-        }
-    }
-
     function startGame() {
         startButton.disabled = true;
         startButton.classList.add('hidden');
@@ -317,15 +347,6 @@ var App = (function hideInternals() {
         });
 
         scoreBoard.classList.add('visible');
-    }
-
-    function exitGamePage() {
-        startButton.disabled = false;
-        startButton.classList.remove('hidden');
-        resetButton.classList.add('hidden');
-        resetButton.querySelector('.pushable__label').textContent = 'Rematch';
-        scoreBoard.classList.remove('visible');
-        gameController?.cleanUp();
     }
 })();
 
